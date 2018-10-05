@@ -1,0 +1,39 @@
+{
+  "name": "@wisersolutions/reducks",
+  "version": "0.0.0",
+  "description": "Tools for modular state management using `redux` and `redux-saga`",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WisePricer/reducks"
+  },
+  "author": "Wiser Solutions, Inc.",
+  "license": "MIT",
+  "main": "./lib/index.js",
+  "module": "./es/index.js",
+  "files": [
+    "/es",
+    "/lib"
+  ],
+  "scripts": {
+    "format": "prettier --write \"src/**/*.js\" --loglevel warn",
+    "lint": "eslint -f @wisersolutions/eslint-formatter-idea ./src",
+    "test": "jest 'src/'",
+    "build": "transpile-js",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@wisersolutions/eslint-config": "^1.0.3",
+    "@wisersolutions/eslint-formatter-idea": "^1.0.2",
+    "@wisersolutions/transpile-js": "^0.0.3",
+    "babel-eslint": "^9.0.0",
+    "babel-jest": "^23.6.0",
+    "eslint": "^5.6.0",
+    "eslint-config-prettier": "^3.0.1",
+    "eslint-plugin-react": "^7.11.1",
+    "jest": "^23.6.0",
+    "prettier": "^1.14.2"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.0.0"
+  }
+}
