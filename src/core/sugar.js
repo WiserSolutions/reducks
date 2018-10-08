@@ -35,32 +35,16 @@ export function createDuckFactory(path) {
     createDuck: genericDuck => genericDuck(duckFactory),
     createNestedFactory: subPath => createDuckFactory(getPath(subPath))
   }
+  // add terse API
+  Object.assign(duckFactory, {
+    type: duckFactory.defineType,
+    asyncType: duckFactory.defineAsyncType,
+    action: duckFactory.createAction,
+    reducer: duckFactory.createReducer,
+    selector: duckFactory.createSelector,
+    path: duckFactory.getPath,
+    duck: duckFactory.createDuck,
+    nest: duckFactory.createNestedFactory
+  })
   return duckFactory
-}
-
-export const terseApi = ({
-  defineType: type,
-  defineAsyncType: asyncType,
-  createAction: action,
-  createReducer: reducer,
-  createSelector: selector,
-  getPath: path,
-  createDuck: duck,
-  createNestedFactory
-}) => ({
-  type,
-  asyncType,
-  action,
-  reducer,
-  selector,
-  path,
-  duck,
-  nest: flowRight(
-    terseApi,
-    createNestedFactory
-  )
-})
-
-export function ducks(path) {
-  return terseApi(createDuckFactory(path))
 }

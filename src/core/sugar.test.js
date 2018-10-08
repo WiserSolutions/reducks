@@ -1,6 +1,6 @@
 import { assocIn } from '@hon2a/icepick-fp'
 
-import { createDuckFactory, terseApi } from './sugar'
+import { createDuckFactory } from './sugar'
 
 const path = 'test.path'
 const subPath = 'sub.path'
@@ -12,6 +12,7 @@ describe('sugar', () => {
   describe('createDuckFactory', () => {
     it('provides prefixed action creators', () => {
       const { defineType, defineAsyncType } = createDuckFactory(path)
+
       expect(defineType(TEST_TYPE)).toEqual(`${path}.${TEST_TYPE}`)
       expect(defineAsyncType(TEST_TYPE)).toEqual({
         PENDING: `${path}.${TEST_TYPE}.PENDING`,
@@ -59,23 +60,31 @@ describe('sugar', () => {
       )
       expect(getPath('baz')).toEqual(['test', 'path', 'sub', 'path', 'baz'])
     })
-  })
 
-  describe('terseApi', () => {
-    it('wraps `createDuckFactory` output in a less verbose API', () => {
+    it('provides shorthand aliases for its methods', () => {
       const duckFactory = createDuckFactory(path)
-      const { type, asyncType, reducer, selector, path: getPath, duck, nest } = terseApi(duckFactory)
-      expect(type).toBe(duckFactory.defineType)
-      expect(asyncType).toBe(duckFactory.defineAsyncType)
-      expect(reducer).toBe(duckFactory.createReducer)
-      expect(selector).toBe(duckFactory.createSelector)
-      expect(getPath).toBe(duckFactory.getPath)
-      expect(duck).toBe(duckFactory.createDuck)
-      // try to check that the nested factory is also wrapped
-      const nestedDuckFactory = nest(subPath)
-      expect(nestedDuckFactory.type).toBeDefined()
-      expect(nestedDuckFactory.defineType).not.toBeDefined()
-      expect(nest(subPath).path('baz')).toEqual(['test', 'path', 'sub', 'path', 'baz'])
+      const {
+        type,
+        defineType,
+        asyncType,
+        defineAsyncType,
+        reducer,
+        createReducer,
+        selector,
+        createSelector,
+        getPath,
+        duck,
+        createDuck,
+        nest,
+        createNestedFactory
+      } = duckFactory
+      expect(type).toBe(defineType)
+      expect(asyncType).toBe(defineAsyncType)
+      expect(reducer).toBe(createReducer)
+      expect(selector).toBe(createSelector)
+      expect(duckFactory.path).toBe(getPath)
+      expect(duck).toBe(createDuck)
+      expect(nest).toBe(createNestedFactory)
     })
   })
 })
