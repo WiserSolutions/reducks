@@ -34,6 +34,22 @@
     "prettier": "^1.14.2"
   },
   "dependencies": {
-    "@babel/runtime": "^7.0.0"
+    "@babel/runtime": "^7.0.0",
+    "@hon2a/icepick-fp": "^0.0.4",
+    "lodash.flowright": "^3.5.0",
+    "lodash.get": "^4.4.2",
+    "lodash.isplainobject": "^4.0.6",
+    "lodash.isarray": "^4.0.0",
+    "lodash.isempty": "^4.4.0",
+    "lodash.isequal": "^4.5.0",
+    "lodash.isfunction": "^3.0.9",
+    "lodash.isstring": "^4.0.1",
+    "lodash.mapvalues": "^4.6.0",
+    "lodash.merge": "^4.6.1",
+    "lodash.orderby": "^4.6.0",
+    "lodash.snakecase": "^4.1.1",
+    "lodash.topairs": "^4.3.0",
+    "lodash.topath": "^4.5.2",
+    "redux-saga": "^0.16.0"
   }
 }

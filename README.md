@@ -1,6 +1,7 @@
 # reducks
 
-Tools for modular state management using `redux` and `redux-saga`
+Tools for modular state management using `redux` and `redux-saga`. The approach and name
+are inspired by the [modular redux proposal](https://github.com/erikras/ducks-modular-redux).
 
 ## Use
 
