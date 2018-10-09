@@ -14,14 +14,14 @@ const identity = a => a
  * @param {Function} validate
  * @param {Object} options
  *  {Number} options.debounceDelay (optional) defaults to 500, use 0 for no debounce
- *  {Function} getValidateErrors (optional) unwrap validation error from validation failure action
- *  {Function} unwrapSaveSuccess (optional) unwrap validation error from save failure action
+ *  {Function} options.getErrors (optional) unwrap validation error from validation failure action
+ *  {Function} options.getSaveErrors (optional) unwrap validation error from save failure action
  * @returns {Function} pass in a duck factory to create the duck
  */
 export const formValidationDuck = (
   { LOAD, CHANGE, SAVE },
   validate,
-  { debounceDelay = 500, getValidateErrors = identity, getSaveErrors = getValidateErrors } = {}
+  { debounceDelay = 500, getErrors: getValidationErrors = identity, getSaveErrors = getValidationErrors } = {}
 ) => ({ defineAsyncType, createReducer, createSelector }) => {
   const VALIDATE = defineAsyncType('VALIDATE')
 
@@ -30,8 +30,8 @@ export const formValidationDuck = (
       errors: composeReducers(
         singleActionReducer(LOAD.SUCCESS, () => []),
         singleActionReducer(VALIDATE.SUCCESS, () => []),
-        singleActionReducer(VALIDATE.FAILURE, getValidateErrors),
-        singleActionReducer(SAVE.FAILURE, getSaveErrors)
+        singleActionReducer(VALIDATE.FAILURE, (state, { payload }) => getValidationErrors(payload) ?? state),
+        singleActionReducer(SAVE.FAILURE, (state, { payload }) => getSaveErrors(payload) ?? state)
       ),
       status: asyncActionStatusReducer(VALIDATE)
     })

@@ -11,7 +11,9 @@ export function createDuckFactory(path) {
   const normalizedPathString = normalizedPath.join('.')
   const prefixType = type => `${normalizedPathString}.${type}`
   const selector = getIn(normalizedPath)
-  const getPath = subPath => [...normalizedPath, ...toPath(subPath)]
+  const getPath = subPath => [...normalizedPath, ...(subPath ? toPath(subPath) : [])]
+
+  // verbose API
   const duckFactory = {
     defineType: flowRight(
       defineType,
@@ -35,7 +37,8 @@ export function createDuckFactory(path) {
     createDuck: genericDuck => genericDuck(duckFactory),
     createNestedFactory: subPath => createDuckFactory(getPath(subPath))
   }
-  // add terse API
+
+  // terse API
   Object.assign(duckFactory, {
     type: duckFactory.defineType,
     asyncType: duckFactory.defineAsyncType,
@@ -46,5 +49,8 @@ export function createDuckFactory(path) {
     duck: duckFactory.createDuck,
     nest: duckFactory.createNestedFactory
   })
+
   return duckFactory
 }
+
+export const ducks = createDuckFactory
