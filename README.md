@@ -47,7 +47,7 @@ state structure and global message types).
 
 A unit of state management containing the above is called a **duck**. It can look e.g. like this:
 
-```ecmascript 6
+```javascript
 import { updateIn } from '@hon2a/icepick-fp'
 import { takeEvery, call, select } from 'redux-saga/effects'
 
@@ -86,7 +86,7 @@ the `ducks` alias). Supplied with a path descriptor, it returns a set of creator
 above constructs in need of "namespacing" - message types, reducers, selectors. Using it in the
 above example would yield:
 
-```ecmascript 6
+```javascript
 // ... (imports)
 import { createDuckFactory } from '@wisersolutions/reducks'
 
@@ -109,7 +109,7 @@ conflicts as well) and helps simplify the reducer code, it doesn't as of itself 
 reusable. But now that all of the duck parts are created with the duck factory helpers, making it
 portable is as simple as wrapping the whole duck in a function that takes the duck factory as argument.
 
-```ecmascript 6
+```javascript
 export const todoListDuck = (getTodosFilter, initialState = []) => ({ defineType, createAction, createReducer, createSelector }) => {
   const ADD = defineType('ADD')
   const add = createAction(ADD, /* ... */)
@@ -124,7 +124,7 @@ export const todoListDuck = (getTodosFilter, initialState = []) => ({ defineType
 
 Need multiple to-do list state managers? No problem.
 
-```ecmascript 6
+```javascript
 import { getTodosFilter } from './ui' // let's say the filter is common to both lists
 
 const firstTodoListDuck = todoListDuck(getTodosFilter)(createDuckFactory('todoLists.first'))
@@ -158,14 +158,14 @@ The core API provides tools to help create and combine the state management piec
 
 `defineType` manages a registry of types and crashes on conflicts.
 
-```ecmascript 6
+```javascript
 const ADD_TODO = defineType('ADD_TODO') // 'ADD_TODO'
 const DO_SOMETHING_ELSE = defineType('ADD_TODO') // error (conflict)
 ```
 
 ###### defineAsyncType
 
-```ecmascript 6
+```javascript
 const SAVE_TODOS = defineAsyncType('SAVE_TODOS') // { PENDING: 'SAVE_TODOS.PENDING', SUCCESS: '...', FAILURE: '...' }
 const DO_SOMETHING_ELSE = defineType('SAVE_TODOS.SUCCESS') // error (conflict)
 ```
@@ -174,7 +174,7 @@ const DO_SOMETHING_ELSE = defineType('SAVE_TODOS.SUCCESS') // error (conflict)
 
 ###### createAction
 
-```ecmascript 6
+```javascript
 const addTodo = createAction(ADD_TODO, label => ({ label })) // { type: ADD_TODO, payload: { label } }
 ```
 
@@ -182,7 +182,7 @@ const addTodo = createAction(ADD_TODO, label => ({ label })) // { type: ADD_TODO
 
 ###### composeReducers
 
-```ecmascript 6
+```javascript
 const reducer = composeReducers(
   (state, { type, payload }) => (type === ADD_TODO) ? updateIn('todos', todos => [...todos, payload])(state) : state,
   (state, { type, payload }) => (type === SAVE_TODOS.SUCCESS) ? assocIn('lastSavedAt', Date.now())(state) : state,
@@ -196,7 +196,7 @@ const state2 = reducer(state1, { type: SAVE_TODOS.SUCCESS })
 
 ###### combineReducers
 
-```ecmascript 6
+```javascript
 const reducer = combineReducers({
   todos: (state = [], { type, payload }) => (type === ADD_TODO) ? [...state, payload] : state,
   todoLastAddedAt: (state, { type, payload }) => (type === ADD_TODO) ? Date.now() : state
@@ -209,7 +209,7 @@ reducer({}, { type: ADD_TODO, payload: { label: 'Sleep' } })
 
 ###### combineSelectors
 
-```ecmascript 6
+```javascript
 const selector = combineSelectors({
   lastTodo: state => state.todos[state.todos.length - 1],
   lastUpdate: state => state.todoLastAddedAt
@@ -245,7 +245,7 @@ the composed reducer and saga should be registered with the `redux` and `redux-s
 management constructs. See the example in the [Modular Ducks (Generics)](#modular-ducks-(generics))
 section.
 
-```ecmascript 6
+```javascript
 const {
   // verbose API
   defineType,
