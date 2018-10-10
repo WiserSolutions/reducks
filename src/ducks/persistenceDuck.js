@@ -12,12 +12,13 @@ export const persistenceDuck = (storage, triggers = '*') => ({ createReducer, cr
   const storageKey = getPath().join('.')
 
   let isInitialized = false
-  const reducer = createReducer(state => {
+  const reducer = state => {
     if (isInitialized) return state
     isInitialized = true
     const initialValue = storage.get(storageKey)
-    return isNil(initialValue) ? state : initialValue
-  })
+    // only touch state if there's something to change (touch creates path and might prevent default initialization)
+    return isNil(initialValue) ? state : createReducer(() => initialValue)()
+  }
 
   function* saveToStorage() {
     const value = yield select(selector)
