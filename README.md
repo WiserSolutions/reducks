@@ -255,6 +255,7 @@ const {
   createSelector,
   createNestedFactory,
   createDuck,
+  collectAndComposeCreatedDucks,
   
   // terse API
   type,
@@ -263,7 +264,8 @@ const {
   reducer,
   selector,
   nest,
-  duck
+  duck,
+  collect
 } = createDuckFactory('some.path')
 defineType('ADD') // or type('ADD') -> 'some.path.ADD'
 defineAsyncType('SAVE') // or asyncType('SAVE') -> { PENDING: 'some.path.SAVE', SUCCESS: ..., FAILURE: ... }
@@ -273,6 +275,10 @@ createSelector(select) // or selector(...) -> `select` is passed just the bit of
 createNestedFactory('sub.path') // or nest(...) -> createDuckFactory('some.path.sub.path')
 createDuck(genericDuck) // or duck(...) -> feeds itself to generic duck (function that expects a duck factory argument)
 ```
+
+`collectAndComposeCreatedDucks` (or `collect`) composes all ducks created by this factory
+using `createDuck` (or `duck`) and its children created with `createNestedFactory` (or `nest`),
+transitively.
 
 #### Generics
 

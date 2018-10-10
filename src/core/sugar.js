@@ -1,10 +1,18 @@
 import toPath from 'lodash.topath'
 import flowRight from 'lodash.flowright'
+import flatten from 'lodash.flatten'
 import { getIn, updateIn } from '@hon2a/icepick-fp'
 
 import { defineAsyncType, defineType } from './types'
 import { createAction } from './actions'
 import { createSelector } from './selectors'
+import { composeDucks } from './ducks'
+
+const keepReference = dest => factory => (...args) => {
+  const instance = factory(...args)
+  dest.push(instance)
+  return instance
+}
 
 export function createDuckFactory(path) {
   const normalizedPath = toPath(path)
@@ -12,6 +20,9 @@ export function createDuckFactory(path) {
   const prefixType = type => `${normalizedPathString}.${type}`
   const selector = getIn(normalizedPath)
   const getPath = subPath => [...normalizedPath, ...(subPath ? toPath(subPath) : [])]
+
+  const createdDucks = []
+  const createdChildren = []
 
   // verbose API
   const duckFactory = {
@@ -34,8 +45,10 @@ export function createDuckFactory(path) {
     createReducer: reducer => (state = {}, action) =>
       updateIn(normalizedPath, subState => reducer(subState, action))(state),
     getPath,
-    createDuck: genericDuck => genericDuck(duckFactory),
-    createNestedFactory: subPath => createDuckFactory(getPath(subPath))
+    createDuck: keepReference(createdDucks)(genericDuck => genericDuck(duckFactory)),
+    createNestedFactory: keepReference(createdChildren)(subPath => createDuckFactory(getPath(subPath))),
+    collectCreatedDucks: () => flatten([createdDucks, ...createdChildren.map(child => child.collectCreatedDucks())]),
+    collectAndComposeCreatedDucks: () => composeDucks(...duckFactory.collectCreatedDucks())
   }
 
   // terse API
@@ -47,7 +60,8 @@ export function createDuckFactory(path) {
     selector: duckFactory.createSelector,
     path: duckFactory.getPath,
     duck: duckFactory.createDuck,
-    nest: duckFactory.createNestedFactory
+    nest: duckFactory.createNestedFactory,
+    collect: duckFactory.collectAndComposeCreatedDucks
   })
 
   return duckFactory

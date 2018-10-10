@@ -38,6 +38,7 @@
     "@hon2a/icepick-fp": "^0.0.4",
     "lodash.flowright": "^3.5.0",
     "lodash.get": "^4.4.2",
+    "lodash.flatten": "^4.4.0",
     "lodash.isplainobject": "^4.0.6",
     "lodash.isarray": "^4.0.0",
     "lodash.isempty": "^4.4.0",
