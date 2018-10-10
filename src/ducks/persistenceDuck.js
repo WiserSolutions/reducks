@@ -1,4 +1,5 @@
 import { select, call, takeEvery } from 'redux-saga/effects'
+import isNil from 'lodash.isnil'
 
 /**
  * Creates a duck that initializes part of the state from external storage and saves updates of that part to the same.
@@ -15,7 +16,7 @@ export const persistenceDuck = (storage, triggers = '*') => ({ createReducer, cr
     if (isInitialized) return state
     isInitialized = true
     const initialValue = storage.get(storageKey)
-    return initialValue === null ? state : initialValue
+    return isNil(initialValue) ? state : initialValue
   })
 
   function* saveToStorage() {
