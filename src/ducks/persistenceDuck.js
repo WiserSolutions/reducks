@@ -17,7 +17,7 @@ export const persistenceDuck = (storage, triggers = '*') => ({ createReducer, cr
     isInitialized = true
     const initialValue = storage.get(storageKey)
     // only touch state if there's something to change (touch creates path and might prevent default initialization)
-    return isNil(initialValue) ? state : createReducer(() => initialValue)()
+    return isNil(initialValue) ? state : createReducer(() => initialValue)(state)
   }
 
   function* saveToStorage() {
