@@ -1,15 +1,16 @@
-import { put, call } from 'redux-saga/effects'
+import { put, call, select } from 'redux-saga/effects'
 
 export const asyncActionSaga = (
   { PENDING, SUCCESS, FAILURE },
   effect,
-  { getArgs = ({ payload } = {}) => [payload], getMeta = action => ({ trigger: action }) } = {}
+  { getArgs = ({ payload } = {}, state) => [payload, state], getMeta = action => ({ trigger: action }) } = {}
 ) =>
   function*(action) {
-    const meta = getMeta(action)
+    const state = yield select()
+    const meta = getMeta(action, state)
     yield put({ type: PENDING, meta })
     try {
-      const data = yield call(effect, ...getArgs(action))
+      const data = yield call(effect, ...getArgs(action, state))
       yield put({ type: SUCCESS, payload: data, meta })
     } catch (error) {
       yield put({ type: FAILURE, payload: error, meta })
