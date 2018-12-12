@@ -31,7 +31,7 @@ export const formDuck = (
   const SUBMIT = defineType('SUBMIT')
   const SAVE = defineAsyncType('SAVE')
 
-  const edit = createAction(EDIT)
+  const edit = createAction(EDIT, identity, (payload, { replace = false }) => ({ replace }))
   const submit = createAction(SUBMIT)
 
   const reducer = createReducer(
@@ -39,7 +39,11 @@ export const formDuck = (
       formState: composeReducers(
         singleActionReducer(LOAD.SUCCESS, (state, { payload }) => toFormState(payload)),
         singleActionReducer(LOAD.FAILURE, () => toFormState()),
-        singleActionReducer(EDIT, (state, { payload }) => freeze(merge({}, state, transformChanges(payload))))
+        singleActionReducer(
+          EDIT,
+          (state, { payload, meta: { replace } }) =>
+            replace ? payload : freeze(merge({}, state, transformChanges(payload)))
+        )
       ),
       load: asyncActionStatusReducer(LOAD),
       save: asyncActionStatusReducer(SAVE)
