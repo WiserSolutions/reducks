@@ -31,7 +31,7 @@ export const formDuck = (
   const SUBMIT = defineType('SUBMIT')
   const SAVE = defineAsyncType('SAVE')
 
-  const edit = createAction(EDIT, identity, (payload, { replace = false }) => ({ replace }))
+  const edit = createAction(EDIT, identity, (payload, { replace = false } = {}) => ({ replace }))
   const submit = createAction(SUBMIT)
 
   const reducer = createReducer(
