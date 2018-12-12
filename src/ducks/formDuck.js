@@ -1,5 +1,6 @@
 import isEqual from 'lodash.isequal'
-import { merge } from '@hon2a/icepick-fp'
+import merge from 'lodash.merge'
+import { freeze } from '@hon2a/icepick-fp'
 import { select, call, put, all, takeLatest } from 'redux-saga/effects'
 
 import { combineReducers, composeReducers } from '../core'
@@ -38,7 +39,7 @@ export const formDuck = (
       formState: composeReducers(
         singleActionReducer(LOAD.SUCCESS, (state, { payload }) => toFormState(payload)),
         singleActionReducer(LOAD.FAILURE, () => toFormState()),
-        singleActionReducer(EDIT, (state, { payload }) => merge(transformChanges(payload))(state))
+        singleActionReducer(EDIT, (state, { payload }) => freeze(merge(state, transformChanges(payload))))
       ),
       load: asyncActionStatusReducer(LOAD),
       save: asyncActionStatusReducer(SAVE)
