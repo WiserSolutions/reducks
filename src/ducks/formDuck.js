@@ -19,11 +19,19 @@ const identity = a => a
  *  {Function} options.toFormState create form state from loaded model
  *  {Function} options.toModel get model from form state
  *  {Function} options.transformChanges
+ *  {Function} options.applyChanges
  * @returns {Function} pass in a duck factory to create the duck
  */
 export const formDuck = (
   RESET,
-  { load, save = () => {}, toFormState = identity, toModel = identity, transformChanges = identity } = {}
+  {
+    load,
+    save = () => {},
+    toFormState = identity,
+    toModel = identity,
+    transformChanges = identity,
+    applyChanges = (state, changes) => merge({}, state, changes)
+  } = {}
 ) => ({ defineType, defineAsyncType, createAction, createReducer, createSelector }) => {
   const LOAD = defineAsyncType('LOAD')
   const EDIT = defineType('EDIT')
@@ -40,7 +48,7 @@ export const formDuck = (
         singleActionReducer(LOAD.SUCCESS, (state, { payload }) => toFormState(payload)),
         singleActionReducer(LOAD.FAILURE, () => toFormState()),
         singleActionReducer(EDIT, (state, { payload, meta: { replace } }) =>
-          freeze(replace ? payload : merge({}, state, transformChanges(payload, state)))
+          freeze(replace ? payload : applyChanges(state, transformChanges(payload, state)))
         )
       ),
       load: asyncActionStatusReducer(LOAD),
