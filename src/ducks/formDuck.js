@@ -40,7 +40,7 @@ export const formDuck = (
         singleActionReducer(LOAD.SUCCESS, (state, { payload }) => toFormState(payload)),
         singleActionReducer(LOAD.FAILURE, () => toFormState()),
         singleActionReducer(EDIT, (state, { payload, meta: { replace } }) =>
-          freeze(replace ? payload : merge({}, state, transformChanges(payload)))
+          freeze(replace ? payload : merge({}, state, transformChanges(payload, state)))
         )
       ),
       load: asyncActionStatusReducer(LOAD),
