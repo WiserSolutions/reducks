@@ -1,6 +1,8 @@
 import isEqual from 'lodash.isequal'
-import merge from 'lodash.merge'
-import { freeze } from '@hon2a/icepick-fp'
+import isArray from 'lodash.isarray'
+import isObject from 'lodash.isobject'
+import icepick from 'icepick'
+import { freeze, merge } from '@hon2a/icepick-fp'
 import { select, call, put, all, takeLatest } from 'redux-saga/effects'
 
 import { combineReducers, composeReducers } from '../core'
@@ -8,6 +10,16 @@ import { asyncActionStatusReducer, singleActionReducer } from '../reducers'
 import { asyncActionSaga } from '../sagas'
 
 const identity = a => a
+
+export const mergeFormState = (state, changes) =>
+  merge(changes, (targetVal, sourceVal) =>
+    isArray(sourceVal) && isArray(targetVal)
+      ? icepick.map((val, idx) => {
+          const oldVal = targetVal[idx]
+          return isObject(val) && isObject(oldVal) ? merge(val)(oldVal) : val
+        }, sourceVal)
+      : sourceVal
+  )(state)
 
 /**
  * Creates a duck managing local form state.
@@ -30,7 +42,7 @@ export const formDuck = (
     toFormState = identity,
     toModel = identity,
     transformChanges = identity,
-    applyChanges = (state, changes) => merge({}, state, changes)
+    applyChanges = mergeFormState
   } = {}
 ) => ({ defineType, defineAsyncType, createAction, createReducer, createSelector }) => {
   const LOAD = defineAsyncType('LOAD')
