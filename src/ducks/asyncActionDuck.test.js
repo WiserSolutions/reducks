@@ -26,7 +26,7 @@ describe('asyncActionDuck', () => {
     const dispatched = await runSagaWithActions(saga, () => state, ...triggers)
     const meta = { trigger: triggers[1] }
     expect(effect).toHaveBeenCalledTimes(1)
-    expect(effect).toHaveBeenCalledWith(triggers[1].payload, state)
+    expect(effect).toHaveBeenCalledWith(triggers[1].payload, state, triggers[1])
     expect(dispatched).toEqual([
       { type: TYPE.PENDING, meta: { trigger: triggers[0] } },
       { type: TYPE.PENDING, meta },

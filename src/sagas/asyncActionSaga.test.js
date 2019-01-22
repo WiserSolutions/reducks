@@ -20,7 +20,7 @@ describe('asyncActionSaga', () => {
     expect(runIteratorToEnd(saga(trigger), [undefined, state, undefined, result])).toEqual([
       select(),
       put({ type: asyncType.PENDING, meta: { trigger } }),
-      call(effect, trigger.payload, state),
+      call(effect, trigger.payload, state, trigger),
       put({ type: asyncType.SUCCESS, payload: result, meta: { trigger } })
     ])
   })
@@ -30,7 +30,7 @@ describe('asyncActionSaga', () => {
     expect(runIteratorToEnd(saga(trigger), [undefined, state, undefined, error])).toEqual([
       select(),
       put({ type: asyncType.PENDING, meta: { trigger } }),
-      call(effect, trigger.payload, state),
+      call(effect, trigger.payload, state, trigger),
       put({ type: asyncType.FAILURE, payload: error, meta: { trigger } })
     ])
   })
