@@ -12,14 +12,15 @@ import { asyncActionSaga } from '../sagas'
 const identity = a => a
 
 export const mergeFormState = (state, changes) =>
-  merge(changes, (targetVal, sourceVal) =>
-    isArray(sourceVal) && isArray(targetVal)
-      ? icepick.map((val, idx) => {
-          const oldVal = targetVal[idx]
-          return isObject(val) && isObject(oldVal) ? merge(val)(oldVal) : val
-        }, sourceVal)
-      : sourceVal
-  )(state)
+  merge(changes, function mergeFormStateArray(targetVal, sourceVal) {
+    if (!isArray(sourceVal) || !isArray(targetVal)) return sourceVal
+    return icepick.map((val, idx) => {
+      const oldVal = targetVal[idx]
+      if (val === undefined) return oldVal
+      if (!isObject(val) || !isObject(oldVal)) return val
+      return merge(val, mergeFormStateArray)(oldVal)
+    }, sourceVal)
+  })(state)
 
 /**
  * Creates a duck managing local form state.

@@ -27,14 +27,31 @@ describe('mergeFormState', () => {
     )
   })
 
-  it('merges arrays of objects', () => {
+  it('merges arrays of objects, recursively', () => {
     const dynamicState = {
       ...basicState,
-      projects: [{ name: { ...fieldBase, value: 'Cool Stuff' } }, { name: { ...fieldBase, value: 'Work' } }]
+      projects: [
+        { name: { ...fieldBase, value: 'Cool Stuff' } },
+        {
+          name: {
+            ...fieldBase,
+            value: 'Work',
+            errors: [
+              { message: 'Fatal error!', severity: 'fatal' },
+              { message: 'Another error!', severity: 'error' },
+              { message: 'Rabbits have rabbited!', severity: 'funny' }
+            ]
+          }
+        }
+      ]
     }
-    const projectUpdate = { touched: true, errors: ['Name not fun enough!'] }
-    expect(mergeFormState(dynamicState, { projects: [{}, projectUpdate] })).toEqual(
-      updateIn('projects[1]', project => ({ ...project, ...projectUpdate }))(dynamicState)
+    const nameUpdate = { touched: true, errors: [undefined, { message: 'Name not fun enough!' }, {}] }
+    expect(mergeFormState(dynamicState, { projects: [{}, { name: nameUpdate }] })).toEqual(
+      updateIn('projects[1].name', name => ({
+        ...name,
+        touched: true,
+        errors: updateIn([1], error => ({ ...error, ...nameUpdate.errors[1] }))(dynamicState.projects[1].name.errors)
+      }))(dynamicState)
     )
   })
 })
