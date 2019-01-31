@@ -92,7 +92,13 @@ export const formDuck = (
   function* saga() {
     yield all([
       takeLatest(RESET, asyncActionSaga(LOAD, load)),
-      takeLatest(SUBMIT, asyncActionSaga(SAVE, save)),
+      takeLatest(
+        SUBMIT,
+        asyncActionSaga(SAVE, save, {
+          getArgs: (action, state) => [getModel(state), state, action],
+          getMeta: (action, state) => ({ trigger: action, model: getModel(state) })
+        })
+      ),
       takeLatest([LOAD.SUCCESS, EDIT], reportModelChanges)
     ])
   }
