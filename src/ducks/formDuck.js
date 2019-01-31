@@ -2,8 +2,8 @@ import isEqual from 'lodash.isequal'
 import isArray from 'lodash.isarray'
 import isObject from 'lodash.isobject'
 import icepick from 'icepick'
-import { freeze, merge } from '@hon2a/icepick-fp'
-import { select, call, put, all, takeLatest } from 'redux-saga/effects'
+import { merge, assign } from '@hon2a/icepick-fp'
+import { select, put, all, takeLatest } from 'redux-saga/effects'
 
 import { combineReducers, composeReducers } from '../core'
 import { asyncActionStatusReducer, singleActionReducer } from '../reducers'
@@ -33,6 +33,7 @@ export const mergeFormState = (state, changes) =>
  *  {Function} options.toModel get model from form state
  *  {Function} options.transformChanges
  *  {Function} options.applyChanges
+ *  {String|Array<String>>} options.CLEAR action type(s)
  * @returns {Function} pass in a duck factory to create the duck
  */
 export const formDuck = (
@@ -43,7 +44,8 @@ export const formDuck = (
     toFormState = identity,
     toModel = identity,
     transformChanges = identity,
-    applyChanges = mergeFormState
+    applyChanges = mergeFormState,
+    CLEAR = []
   } = {}
 ) => ({ defineType, defineAsyncType, createAction, createReducer, createSelector }) => {
   const LOAD = defineAsyncType('LOAD')
@@ -55,37 +57,36 @@ export const formDuck = (
   const edit = createAction(EDIT, identity, (payload, { replace = false } = {}) => ({ replace }))
   const submit = createAction(SUBMIT)
 
+  const CLEAR_TRIGGERS = isArray(CLEAR) ? CLEAR : [CLEAR]
+  const pureAssignReducer = (types, getUpdate) => (state, action) =>
+    types.includes(action.type) ? assign(getUpdate(action))(state) : state
   const reducer = createReducer(
-    combineReducers({
-      formState: composeReducers(
-        singleActionReducer(LOAD.SUCCESS, (state, { payload }) => toFormState(payload)),
-        singleActionReducer(LOAD.FAILURE, () => toFormState()),
-        singleActionReducer(EDIT, (state, { payload, meta: { replace } }) =>
-          freeze(replace ? payload : applyChanges(state, transformChanges(payload, state)))
-        )
-      ),
-      load: asyncActionStatusReducer(LOAD),
-      save: asyncActionStatusReducer(SAVE)
-    })
+    composeReducers(
+      pureAssignReducer([LOAD.SUCCESS], ({ payload: model }) => ({ model, formState: toFormState(model) })),
+      pureAssignReducer([LOAD.FAILURE, ...CLEAR_TRIGGERS], () => ({ model: undefined, formState: undefined })),
+      singleActionReducer(EDIT, (state, { payload, meta: { replace } }) => {
+        const formState = replace ? payload : applyChanges(state.formState, transformChanges(payload, state.formState))
+        return assign({ model: toModel(formState, state.model), formState })(state)
+      }),
+      combineReducers({
+        load: asyncActionStatusReducer(LOAD),
+        save: asyncActionStatusReducer(SAVE)
+      })
+    )
   )
 
   const getFormState = createSelector('formState')
-  const getModel = state => toModel(getFormState(state))
+  const getModel = createSelector('model')
   const getLoadStatus = createSelector('load')
   const getSaveStatus = createSelector('save')
 
   let prevModel
   function* reportModelChanges({ type }) {
-    const formState = yield select(getFormState)
-    const model = toModel(formState)
+    const model = yield select(getModel)
+    const isChange = type === EDIT && !isEqual(model, prevModel)
 
-    const isChanged = type === EDIT && !isEqual(model, prevModel)
-    yield call(() => {
-      prevModel = model
-    })
-    if (!isChanged) return
-
-    yield put({ type: CHANGE, payload: model })
+    prevModel = model
+    if (isChange) yield put({ type: CHANGE, payload: model })
   }
 
   function* saga() {
