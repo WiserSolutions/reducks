@@ -46,6 +46,7 @@ export function createDuckFactory(path) {
       updateIn(normalizedPath, subState => reducer(subState, action))(state),
     getPath,
     createDuck: keepReference(createdDucks)(genericDuck => genericDuck(duckFactory)),
+    createSagaDuck: keepReference(createdDucks)(saga => ({ saga })),
     createNestedFactory: keepReference(createdChildren)(subPath => createDuckFactory(getPath(subPath))),
     collectCreatedDucks: () => flatten([createdDucks, ...createdChildren.map(child => child.collectCreatedDucks())]),
     collectAndComposeCreatedDucks: () => composeDucks(...duckFactory.collectCreatedDucks())
@@ -60,6 +61,7 @@ export function createDuckFactory(path) {
     selector: duckFactory.createSelector,
     path: duckFactory.getPath,
     duck: duckFactory.createDuck,
+    saga: duckFactory.createSagaDuck,
     nest: duckFactory.createNestedFactory,
     collect: duckFactory.collectAndComposeCreatedDucks
   })

@@ -75,6 +75,8 @@ describe('sugar', () => {
         getPath,
         duck,
         createDuck,
+        saga,
+        createSagaDuck,
         nest,
         createNestedFactory
       } = duckFactory
@@ -84,6 +86,7 @@ describe('sugar', () => {
       expect(selector).toBe(createSelector)
       expect(duckFactory.path).toBe(getPath)
       expect(duck).toBe(createDuck)
+      expect(saga).toBe(createSagaDuck)
       expect(nest).toBe(createNestedFactory)
     })
   })
