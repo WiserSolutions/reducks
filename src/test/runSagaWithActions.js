@@ -8,15 +8,17 @@ export async function runSagaWithActions(saga, getState = () => {}, ...actions) 
   const channel = stdChannel()
   emitter.on('action', channel.put)
 
+  const emitAction = (action) => emitter.emit('action', action)
+
   const testIO = {
     channel,
-    dispatch: action => emitter.emit('action', action) && dispatched.push(action),
+    dispatch: action => emitAction(action) && dispatched.push(action),
     getState
   }
 
   await runSaga(testIO, saga)
 
-  actions.forEach(action => testIO.dispatch(action))
+  actions.forEach(emitAction)
 
   return dispatched
 }
