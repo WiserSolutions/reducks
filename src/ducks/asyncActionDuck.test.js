@@ -12,7 +12,10 @@ describe('asyncActionDuck', () => {
 
   it("performs effect on latest trigger, stores both the result and the effect's async status", async () => {
     const data = { some: 'data' }
-    const effect = jest.fn().mockResolvedValueOnce(data)
+    const effect = jest
+      .fn()
+      .mockResolvedValueOnce({ obsolete: 'data' })
+      .mockResolvedValueOnce(data)
     const { TYPE, saga, reducer, getResult, getStatus } = asyncActionDuck(TRIGGER_TYPE, effect)(factory)
 
     expect(TYPE).toBeDefined()
@@ -25,8 +28,9 @@ describe('asyncActionDuck', () => {
     const state = { dummy: 'state' }
     const dispatched = await runSagaWithActions(saga, () => state, ...triggers)
     const meta = { trigger: triggers[1] }
-    expect(effect).toHaveBeenCalledTimes(1)
+    // note that `effect` is called twice, because the first one goes off before the second trigger is consumed…
     expect(effect).toHaveBeenCalledWith(triggers[1].payload, state, triggers[1])
+    // …but only the latest result is reported when multiple triggers go off before the effect is finished
     expect(dispatched).toEqual([
       { type: TYPE.PENDING, meta: { trigger: triggers[0] } },
       { type: TYPE.PENDING, meta },
