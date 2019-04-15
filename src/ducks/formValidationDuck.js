@@ -1,5 +1,4 @@
-import { delay } from 'redux-saga'
-import { takeLatest } from 'redux-saga/effects'
+import { delay, takeLatest } from 'redux-saga/effects'
 
 import { combineReducers, composeReducers } from '../core'
 import { asyncActionStatusReducer, singleActionReducer } from '../reducers'

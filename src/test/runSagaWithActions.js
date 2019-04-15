@@ -1,22 +1,22 @@
-import { runSaga } from 'redux-saga'
+import { runSaga, stdChannel } from 'redux-saga'
 
 export async function runSagaWithActions(saga, getState = () => {}, ...actions) {
   const dispatched = []
-  let handleAction
+  const channel = stdChannel()
+
   await runSaga(
     {
-      subscribe: callback => {
-        handleAction = callback
-        actions.forEach(handleAction)
-        return () => {}
-      },
-      dispatch: action => {
+      channel,
+      dispatch(action) {
         dispatched.push(action)
-        handleAction(action)
+        channel.put(action)
       },
       getState
     },
     saga
   )
+
+  actions.forEach(channel.put)
+
   return dispatched
 }
