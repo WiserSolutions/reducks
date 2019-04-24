@@ -22,6 +22,7 @@
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {
+    "@redux-saga/deferred": "^1.0.1",
     "@wisersolutions/eslint-config": "^1.0.3",
     "@wisersolutions/eslint-formatter-idea": "^1.0.2",
     "@wisersolutions/transpile-js": "^0.0.3",
