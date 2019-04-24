@@ -1,5 +1,6 @@
 export * from './utils'
 export * from './core'
+export * from './effects'
 export * from './sagas'
 export * from './reducers'
 export * from './selectors'
