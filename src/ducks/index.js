@@ -1,5 +1,6 @@
 export * from './asyncActionDuck'
 export * from './confirmDuck'
+export * from './flagDuck'
 export * from './formDuck'
 export * from './formValidationDuck'
 export * from './getSetDuck'
