@@ -9,10 +9,10 @@ describe('takeLatestBy', () => {
     const args = ['foo', 'bar']
     const action = (id, data) => ({ type: TYPE, payload: { id, data } })
     const defs = arrayOfDeferred(3)
-    let idx = 0
+    let workerIdx = 0
     const finished = []
     function* worker(arg1, arg2, { payload: { id, data } }) {
-      const def = defs[idx++]
+      const def = defs[workerIdx++]
       const result = yield def.promise
       finished.push({ id, data, args: [arg1, arg2], result })
     }

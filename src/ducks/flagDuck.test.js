@@ -1,8 +1,6 @@
-import { setIn } from '@hon2a/icepick-fp'
-
 import { createDuckFactory } from '../core'
 import { flagDuck } from './flagDuck'
-import { testReducerSequence } from '../test/testReducerSequence'
+import { testReducerSelector } from '../test/testReducer'
 
 describe('flagDuck', () => {
   const factory = createDuckFactory('test.duck')
@@ -18,15 +16,12 @@ describe('flagDuck', () => {
     expect(turnOff()).toEqual({ type: TURN_OFF_TYPE })
     expect(toggle()).toEqual({ type: TOGGLE_TYPE })
 
-    const stepReducer = testReducerSequence(reducer, {})
-    const step = (action, expectedFlagValue) => stepReducer(action, setIn('test.duck', expectedFlagValue))
+    const step = testReducerSelector(reducer, selector)
     step({ type: 'TEST_INIT' }, false)
     step({ type: TURN_ON_TYPE }, true)
     step({ type: TURN_OFF_TYPE }, false)
     step({ type: TOGGLE_TYPE }, true)
     step({ type: 'IGNORED' }, true)
     step({ type: TOGGLE_TYPE }, false)
-
-    expect(selector({ test: { duck: 'test value' } })).toEqual('test value')
   })
 })

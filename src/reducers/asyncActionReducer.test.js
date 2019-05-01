@@ -7,7 +7,7 @@ import {
   asyncActionStatusReducer,
   splitAsyncActionReducer
 } from './asyncActionReducer'
-import { testReducerSequence } from '../test/testReducerSequence'
+import { testReducerChanges } from '../test/testReducer'
 
 const TYPE = 'SYNC_TYPE'
 const ASYNC_TYPE = defineAsyncType('ASYNC_TYPE')
@@ -99,14 +99,13 @@ describe('splitAsyncActionReducer', () => {
   const reducer = splitAsyncActionReducer(ASYNC_TYPE, ({ meta: { path } }) => path)
   const action = (type, path, payload) => ({ type, payload, meta: { path } })
   const result = 'previous data'
-  const error = 'test error'
 
   it('inits correctly', () => {
     expect(reducer(undefined, { type: TYPE })).toEqual({})
   })
 
   it('stores async action state separately for each path', () => {
-    const step = testReducerSequence(reducer, {
+    const step = testReducerChanges(reducer, {
       first: { result: 'old result', isPending: false, error: undefined }
     })
     step(action(PENDING, 'first'), setIn('first.isPending', true))
