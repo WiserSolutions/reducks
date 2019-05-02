@@ -1,8 +1,8 @@
 import { runSagaWithActions } from '../test'
 import { takeOne, composeSagas } from './sagas'
 
-const mockGenerator = (...values) =>
-  jest.fn().mockImplementation(() => ({ next: () => ({ done: !values.length, value: values.shift() }) }))
+const mockGenerator = (values = [], effect = () => {}) =>
+  jest.fn().mockImplementation(() => effect() || { next: () => ({ done: !values.length, value: values.shift() }) })
 
 describe('sagas', () => {
   describe('takeOne', () => {
@@ -26,13 +26,22 @@ describe('sagas', () => {
   })
 
   describe('composeSagas', () => {
-    it('composes sagas', async () => {
+    it('composes sagas, right to left', async () => {
+      const order = []
       // include a saga yielding unresolved promise to check that it's not blocking
-      const sagas = [mockGenerator(new Promise(() => {})), ...[0, 1].map(mockGenerator)]
+      const sagas = [
+        mockGenerator([new Promise(() => {})]),
+        ...[1, 2].map(value =>
+          mockGenerator([value], () => {
+            order.push(value)
+          })
+        )
+      ]
 
       await runSagaWithActions(composeSagas(...sagas))
 
       sagas.forEach(saga => expect(saga).toHaveBeenCalledTimes(1))
+      expect(order).toEqual([2, 1])
     })
   })
 })

@@ -10,7 +10,7 @@ import { composeDucks } from './ducks'
 
 const keepReference = dest => factory => (...args) => {
   const instance = factory(...args)
-  dest.push(instance)
+  dest.unshift(instance)
   return instance
 }
 

@@ -61,7 +61,7 @@ describe('sugar', () => {
       expect(getPath('baz')).toEqual(['test', 'path', 'sub', 'path', 'baz'])
     })
 
-    it('provides shorthand aliases for its methods', () => {
+    it('provides shorthand aliases for most of its methods', () => {
       const duckFactory = createDuckFactory(path)
       const {
         type,
@@ -78,7 +78,9 @@ describe('sugar', () => {
         saga,
         createSagaDuck,
         nest,
-        createNestedFactory
+        createNestedFactory,
+        collectAndComposeCreatedDucks,
+        collect
       } = duckFactory
       expect(type).toBe(defineType)
       expect(asyncType).toBe(defineAsyncType)
@@ -88,6 +90,7 @@ describe('sugar', () => {
       expect(duck).toBe(createDuck)
       expect(saga).toBe(createSagaDuck)
       expect(nest).toBe(createNestedFactory)
+      expect(collect).toBe(collectAndComposeCreatedDucks)
     })
   })
 })

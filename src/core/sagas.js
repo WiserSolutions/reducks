@@ -8,6 +8,11 @@ export const takeOne = (...args) => fork(takeOneHelper, ...args)
 
 export function composeSagas(...sagas) {
   return function*() {
-    yield all(sagas.map(fork))
+    yield all(
+      sagas
+        .slice()
+        .reverse()
+        .map(fork)
+    )
   }
 }
