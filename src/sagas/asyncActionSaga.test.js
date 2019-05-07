@@ -31,7 +31,7 @@ describe('asyncActionSaga', () => {
       select(),
       put({ type: asyncType.PENDING, meta: { trigger } }),
       call(effect, trigger.payload, state, trigger),
-      put({ type: asyncType.FAILURE, payload: error, meta: { trigger } })
+      put({ type: asyncType.FAILURE, payload: error, meta: { trigger }, error: true })
     ])
   })
 })
