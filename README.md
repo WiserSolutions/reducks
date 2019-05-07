@@ -282,6 +282,62 @@ transitively.
 
 #### Generics
 
+##### Reducers
+
+###### asyncActionReducer
+
+Following utils help store info about async actions:
+
+- `asyncActionFlagReducer` stores a flag indicating whether an async action is currently pending,
+- `asyncActionStatusReducer` stores not just the status, but also the last error (failure payload),
+- `asyncActionReducer` stores status, last error, and last result (success payload),
+- `splitAsyncActionReducer` does the above but separately for multiple keys (when there's a single action used
+  for handling multiple entities).
+
+```javascript
+const LOAD_USERS = defineAsyncType('LOAD_USERS')
+const reducer = combineReducers({
+  isLoading: asyncActionFlagReducer(LOAD_USERS), // Boolean
+  loadStatus: asyncActionStatusReducer(LOAD_USERS), // { isPending: Boolean, error: * }
+  users: asyncActionReducer(LOAD_USERS, undefined, []), // { isPending: Boolean, error: *, result: * }
+  usersBySearch: splitAsyncActionReducer(LOAD_USERS, ({ payload: { search } }) => search) // { [String]: { ...^^... } }
+})
+```
+
+###### flagReducer
+
+`flagReducer` manages a boolean flag derived from lists of "true", "false", and "toggle" types.
+
+```javascript
+const reducer = combineReducers({
+  isVisible: flagReducer([ENTER, SHOW], [HIDE, LEAVE], [TOGGLE]),
+  isHidden: flagReducer([HIDE, LEAVE], [ENTER, SHOW], [TOGGLE], true)
+})
+```
+
+###### singleActionReducer
+
+`singleActionReducer` collects data from just a single specific action (or rather message type).
+
+```javascript
+const JUMP = defineType('JUMP')
+const jump = createAction('jump', (height, distance) => ({ height, distance }))
+const reducer = combineReducers({
+  lastJump: singleActionReducer(JUMP),
+  maxJumpDistance: singleActionReducer(JUMP, (state, { payload: { distance } }) => Math.max(state, distance), 0)
+})
+```
+
+##### Selectors
+
+TBD
+
+##### Sagas
+
+TBD
+
+##### Ducks
+
 TBD
 
 ## Development
