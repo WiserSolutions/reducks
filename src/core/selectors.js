@@ -14,4 +14,4 @@ export function createSelector(selector) {
   throw new Error(`"${selector}" is not a valid selector!`)
 }
 
-export const combineSelectors = selectorMap => state => mapValues(selectorMap, selector => selector(state))
+export const combineSelectors = selectorMap => (state, ownProps) => mapValues(selectorMap, selector => selector(state, ownProps))
