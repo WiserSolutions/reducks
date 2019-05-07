@@ -13,6 +13,6 @@ export const asyncActionSaga = (
       const data = yield call(effect, ...getArgs(action, state))
       yield put({ type: SUCCESS, payload: data, meta })
     } catch (error) {
-      yield put({ type: FAILURE, payload: error, meta })
+      yield put({ type: FAILURE, payload: error, meta, error: true })
     }
   }
