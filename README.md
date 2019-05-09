@@ -362,13 +362,46 @@ reducer(0, { type: JUMP, payload: { height: 120, distance: 180 } }) // -> 180
 reducer(180, { type: JUMP, payload: { height: 134, distance: 161 } }) // -> 180
 ```
 
-##### Selectors
-
-TBD
-
 ##### Sagas
 
-TBD
+###### asyncActionSaga
+
+`asyncActionSaga` runs an "async action", emitting appropriate messages along the way.
+
+```javascript
+const ENTER = defineType('ENTER')
+const LOAD_USERS = defineAsyncType('LOAD_USERS')
+const saga = function* () {
+  yield takeLatest(ENTER, asyncActionSaga(LOAD_USERS, effect))
+}
+const trigger = { type: ENTER, ... }
+```
+
+Running this saga makes it:
+
+1. emit `{ type: LOAD_USERS.PENDING, meta: { trigger } }`, then
+1. call `const result = effect(trigger.payload, state, trigger)` and wait for it to complete or fail, then
+1. emit `{ type: LOAD_USERS.SUCCESS, payload: result, meta: { trigger } }` on success or
+  `{ type: LOAD_USERS.FAILURE, payload: capturedError, meta: { trigger } }` on failure.
+
+Note that all of the messages contain the message that triggered them in `meta.trigger` by default. This can be
+modified/extended by passing `getMeta` in the third options argument.
+
+###### sideEffectsMapSaga
+
+`sideEffectsMapSaga` simplifies invocation of no-return side-effects, e.g. logging, notifications, or auto-persistence.
+
+```javascript
+const saga = sideEffectsMapSaga({
+  [ENTER]: () => alert('Welcome!'),
+  [LOAD_USERS.FAILURE]: error => alert(`Loading users failed! (${error})`),
+  [LOAD_USERS.SUCCESS]: (payload, { meta: { page, totalPages } }) => (page < totalPages - 1)
+    && alert('Not all of the users were loaded. Scroll to bottom to load more.'),
+  [LOAD_USERS.FAILURE]: (error, action, state) => alert(`Failed to load${getUsers(state).length ? ' more' : ''} users`)
+})
+```
+
+Running this saga makes it fire off the provided side-effects when their respective triggers are observed.
 
 ##### Ducks
 
