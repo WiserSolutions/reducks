@@ -2,7 +2,6 @@ import { takeLatest } from 'redux-saga/effects'
 
 import { asyncActionReducer } from '../reducers'
 import { asyncActionSaga } from '../sagas'
-import { asyncActionStatusSelector } from '../selectors'
 import { combineSelectors } from '../core'
 
 /**
