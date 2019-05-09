@@ -282,7 +282,263 @@ transitively.
 
 #### Generics
 
-TBD
+##### Reducers
+
+###### asyncActionReducer & friends
+
+Following utils help store info about async actions. Assuming `const LOAD_USERS = defineAsyncType('LOAD_USERS')`:
+
+- `asyncActionFlagReducer` stores a flag indicating whether an async action is currently pending,
+    ```javascript
+    const reducer = asyncActionFlagReducer(LOAD_USERS)
+    reducer(undefined, { type: 'INIT' }) // -> false
+    reducer(anyState, { type: LOAD_USERS.PENDING }) // -> true
+    reducer(anyState, { type: LOAD_USERS.SUCCESS }) // -> false
+    reducer(anyState, { type: LOAD_USERS.FAILURE }) // -> false
+    ```
+- `asyncActionStatusReducer` stores not just the status, but also the last error (failure payload),
+    ```javascript
+    const reducer = asyncActionFlagReducer(LOAD_USERS)
+    reducer(undefined, { type: 'INIT' }) // -> { isPending: false, error: undefined }
+    reducer(anyState, { type: LOAD_USERS.PENDING }) // -> { isPending: true, error: undefined }
+    reducer(anyState, { type: LOAD_USERS.SUCCESS }) // -> { isPending: false, error: undefined }
+    reducer(anyState, { type: LOAD_USERS.FAILURE, payload }) // -> { isPending: false, error: payload }
+    ```
+- `asyncActionReducer` stores status, last error, and last result (success payload),
+    ```javascript
+    const reducer = asyncActionReducer(LOAD_USERS, undefined, [])
+    reducer(undefined, { type: 'INIT' }) // -> { isPending: false, error: undefined, result: [] }
+    reducer({ result, error, ... }, { type: LOAD_USERS.PENDING }) // -> { isPending: true, error, result }
+    reducer(anyState, { type: LOAD_USERS.SUCCESS, payload }) // -> { isPending: false, error: undefined, result: payload }
+    reducer({ result, ... }, { type: LOAD_USERS.FAILURE, payload }) // -> { isPending: false, error: payload, result }
+    ```
+- `splitAsyncActionReducer` does the above but separately for multiple keys (when there's a single action used
+  for handling multiple entities).
+    ```javascript
+    const reducer = splitAsyncActionReducer(LOAD_USERS, ({ meta: { search } }) => search)
+    reducer(undefined, { type: 'INIT' }) // -> {}
+    reducer({ a, ab, abc: { result, error, ... } }, { type: LOAD_USERS.PENDING, meta: { search: 'abc' } })
+    // -> { a, ab, abc: { isPending: false, error, result } }
+    reducer({ a, ab, abc }, { type: LOAD_USERS.SUCCESS, payload, meta: { search: 'abc' } })
+    // -> { a, ab, abc: { isPending: false, error: undefined, result: payload } }
+    reducer({ a, ab, abc: { result, ... } }, { type: LOAD_USERS.FAILURE, payload, meta: { search: 'abc' } })
+    // -> { a, ab, abc: { isPending: false, error: payload, result } }
+    ```
+
+###### flagReducer
+
+`flagReducer` manages a boolean flag derived from lists of "true", "false", and "toggle" types.
+
+```javascript
+const reducer = flagReducer([ENTER, SHOW], [HIDE, LEAVE], [TOGGLE])
+reducer(undefined, { type: 'INIT' }) // -> false
+reducer(anyState, { type: SHOW }) // -> true
+reducer(anyState, { type: HIDE }) // -> false
+reducer(false, { type: TOGGLE }) // -> true
+reducer(true, { type: TOGGLE }) // -> false
+```
+
+```javascript
+const reducer = flagReducer([ENTER, SHOW], [HIDE, LEAVE], [TOGGLE], true)
+reducer(undefined, { type: 'INIT' }) // -> true
+// … the rest works just the same
+```
+
+###### singleActionReducer
+
+`singleActionReducer` collects data from just a single specific action (or rather message type). Assuming
+`const JUMP = defineType('JUMP')`:
+
+```javascript
+const reducer = singleActionReducer(JUMP)
+reducer(undefined, { type: 'INIT' }) // -> undefined
+reducer(undefined, { type: JUMP, payload }) // -> payload
+```
+
+```javascript
+const reducer = singleActionReducer(JUMP, (state, { payload: { distance } }) => Math.max(state, distance), 0)
+reducer(undefined, { type: 'INIT' }) // -> 0
+reducer(0, { type: JUMP, payload: { height: 120, distance: 180 } }) // -> 180
+reducer(180, { type: JUMP, payload: { height: 134, distance: 161 } }) // -> 180
+```
+
+##### Sagas
+
+###### asyncActionSaga
+
+`asyncActionSaga` runs an "async action", emitting appropriate messages along the way.
+
+```javascript
+const ENTER = defineType('ENTER')
+const LOAD_USERS = defineAsyncType('LOAD_USERS')
+const saga = function* () {
+  yield takeLatest(ENTER, asyncActionSaga(LOAD_USERS, effect))
+}
+const trigger = { type: ENTER, ... }
+```
+
+Running this saga makes it:
+
+1. emit `{ type: LOAD_USERS.PENDING, meta: { trigger } }`, then
+1. call `const result = effect(trigger.payload, state, trigger)` and wait for it to complete or fail, then
+1. emit `{ type: LOAD_USERS.SUCCESS, payload: result, meta: { trigger } }` on success or
+  `{ type: LOAD_USERS.FAILURE, payload: capturedError, meta: { trigger } }` on failure.
+
+Note that all of the messages contain the message that triggered them in `meta.trigger` by default. This can be
+modified/extended by passing `getMeta` in the third options argument.
+
+###### sideEffectsMapSaga
+
+`sideEffectsMapSaga` simplifies invocation of no-return side-effects, e.g. logging, notifications, or auto-persistence.
+
+```javascript
+const saga = sideEffectsMapSaga({
+  [ENTER]: () => alert('Welcome!'),
+  [LOAD_USERS.FAILURE]: error => alert(`Loading users failed! (${error})`),
+  [LOAD_USERS.SUCCESS]: (payload, { meta: { page, totalPages } }) => (page < totalPages - 1)
+    && alert('Not all of the users were loaded. Scroll to bottom to load more.'),
+  [LOAD_USERS.FAILURE]: (error, action, state) => alert(`Failed to load${getUsers(state).length ? ' more' : ''} users`)
+})
+```
+
+Running this saga makes it fire off the provided side-effects when their respective triggers are observed.
+
+##### Ducks
+
+###### asyncActionDuck & friends
+
+`asyncActionDuck` creates a state manager for an async action.
+
+```javascript
+const ENTER = defineType('ENTER')
+const {
+  TYPE: LOAD_USERS,
+  getResult: getUsers,
+  getStatus: getLoadUsersStatus
+} = duck(asyncActionDuck(ENTER, ::api.fetchUsers))
+```
+
+- It defines an async `TYPE`,
+- uses `asyncActionSaga` with `takeLatest` to call `effect`, emit the appropriate messages whenever the trigger
+  is observed, and discard obsolete results when encountering another trigger while the `effect` is in progress,
+- uses `asyncActionReducer` to store status and results and defines selectors for each.
+
+`asyncActionDuckWithTrigger` provides an additional sugar for those (quite common) cases where trigger is defined/used
+exclusively to trigger this async action. _That's likely not the case with `ENTER` above (user entering a page is
+a nice thing to know globally)._
+
+```javascript
+const {
+  TRIGGER_TYPE: SUBMIT_USER,
+  EFFECT_TYPE: SAVE_USER,
+  getResult: getSaveUserResult,
+  getStatus: getSaveUserStatus
+} = duck(asyncActionDuckWithTrigger(::api.fetchUsers))
+```
+
+`splitAsyncActionDuck` helps with the cases where a single async action is used to perform effects for multiple separate
+entities. It stores (and obsoletes) data on per-entity basis.
+
+```javascript
+const getKey = ({ payload: user }) => user.id
+const {
+  TYPE: LOAD_USER_COMMENTS,
+  getResults: getAllComments, // -> { firstUserId: firstUserComments, ... }
+  getStatuses: getAllLoadCommentsStatuses, // -> { firstUserId: { isPending: Boolean, error: * }, ... }
+  getResult: getComments, // -> (userId) => commentsForThatUser: *
+  getStatus: getLoadCommentsStatus // -> (userId) => statusForThatUser: { isPending: Boolean, error: * }
+} = duck(splitAsyncActionDuck(LOAD_USER.SUCCESS, getKey, ::api.fetchComments))
+```  
+
+###### confirmDuck
+
+`confirmDuck` helps with adding a confirmation layer over an existing action.
+
+```javascript
+const { action: doUpdateUser } = duck(asyncActionDuckWithTrigger(::api.saveUser))
+const {
+  TRIGGER: UPDATE_USER,
+  trigger: updateUser,
+  CONFIRM: CONFIRM_USER_UPDATE,
+  confirm: confirmUserUpdate,
+  CANCEL: CANCEL_USER_UPDATE,
+  cancel: cancelUserUpdate,
+  isPending: isUserUpdateConfirmationPending,
+  getTriggerPayload: getUserUpdateData // useful to e.g. show the user's name in the confirmation dialog
+} = duck(confirmDuck(doUpdateUser))
+```
+
+Shape of `trigger` and `confirm` payloads can be adjusted by passing additional arguments to `confirmDuck`.
+
+###### flagDuck
+
+`flagDuck` helps manage a simple boolean flag.
+
+```javascript
+const {
+  TURN_ON_TYPE: SHOW_EDITOR,
+  turnOn: showEditor,
+  TURN_OFF_TYPE: HIDE_EDITOR,
+  turnOff: hideEditor,
+  TOGGLE_TYPE: TOGGLE_EDITOR,
+  toggle: toggleEditor,
+  selector: getIsEditorVisible
+} = duck(flagDuck())
+```
+
+###### formDuck
+
+`formDuck` manages form state from the initial load, through changes, to the eventual submit (possibly with multiple
+load triggers, living through multiple submits, etc.).
+
+_More details TBD…_
+
+`formValidationDuck` is a decorator for adding async validation to `formDuck`.
+
+_More details TBD…_
+
+###### getSetDuck
+
+`getSetDuck` helps deal with those simple cases where an action simply maps to stored state.
+
+```javascript
+const {
+  TYPE: SET_SEARCH,
+  action: setSearch,
+  selector: getSearch
+} = duck(getSetDuck(''))
+```
+
+###### persistenceDuck
+
+`persistenceDuck` is a state manager decorator that initializes the state from external storage and then saves
+subsequent state updates to the same.
+
+```javascript
+const storage = {
+  get: key => JSON.parse(localStorage.getItem(key) ?? 'null') ?? undefined,
+  set: (key, value) => (value === undefined) ? localStorage.removeItem(key) : localStorage.setItem(key, JSON.stringify(value))
+}
+const pageSize = nest('pageSize')
+const { TYPE: SET_PAGE_SIZE } = pageSize.duck(getSetDuck(25)) // use default size of 25…
+pageSize.duck(persistenceDuck(storage, SET_PAGE_SIZE)) // …but only if there's none already persisted
+```
+
+###### reduceAndSelectDuck
+
+`reduceAndSelectDuck` helps store and access state (at the place in state tree where it is applied, implicitly).
+
+```javascript
+const { selector: getMaxObservedPrice } = duck(
+  reduceAndSelectDuck(
+    singleActionReducer(
+      LOAD_PRODUCTS.SUCCESS,
+      (prevMaxPrice, { payload: products }) => Math.max(prevMaxPrice, ...products.map(({ price }) => price)),
+      0
+    )
+  )
+)
+```
 
 ## Development
 

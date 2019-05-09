@@ -6,7 +6,7 @@ import { composeDucks } from '../core'
 
 const identity = a => a
 
-export const confirmDuck = (effect, createTriggerPayload = identity, createConfirmPayload = identity) => ({
+export const confirmDuck = (action, createTriggerPayload = identity, createConfirmPayload = identity) => ({
   defineType,
   createNestedFactory
 }) => {
@@ -27,7 +27,7 @@ export const confirmDuck = (effect, createTriggerPayload = identity, createConfi
 
   function* performEffect({ payload }) {
     const triggerPayload = yield select(getTriggerPayload)
-    yield put(effect(triggerPayload, payload))
+    yield put(action(triggerPayload, payload))
   }
 
   const { reducer, saga } = composeDucks(isPendingDuck, triggerPayloadDuck, {

@@ -1,3 +1,5 @@
+import { arrayOfDeferred } from '@redux-saga/deferred'
+
 import { runSagaWithActions } from '../test'
 import { asyncActionDuck } from './asyncActionDuck'
 import { createDuckFactory } from '../core'
@@ -12,10 +14,9 @@ describe('asyncActionDuck', () => {
 
   it("performs effect on latest trigger, stores both the result and the effect's async status", async () => {
     const data = { some: 'data' }
-    const effect = jest
-      .fn()
-      .mockResolvedValueOnce({ obsolete: 'data' })
-      .mockResolvedValueOnce(data)
+    const defs = arrayOfDeferred(2)
+    let idx = 0
+    const effect = jest.fn().mockImplementation(() => defs[idx++].promise)
     const { TYPE, saga, reducer, getResult, getStatus } = asyncActionDuck(TRIGGER_TYPE, effect)(factory)
 
     expect(TYPE).toBeDefined()
@@ -29,8 +30,11 @@ describe('asyncActionDuck', () => {
     const dispatched = await runSagaWithActions(saga, () => state, ...triggers)
     const meta = { trigger: triggers[1] }
     // note that `effect` is called twice, because the first one goes off before the second trigger is consumed…
+    expect(effect).toHaveBeenCalledWith(triggers[0].payload, state, triggers[0])
     expect(effect).toHaveBeenCalledWith(triggers[1].payload, state, triggers[1])
     // …but only the latest result is reported when multiple triggers go off before the effect is finished
+    await defs[0].resolve({ obsolete: 'data' })
+    await defs[1].resolve(data)
     expect(dispatched).toEqual([
       { type: TYPE.PENDING, meta: { trigger: triggers[0] } },
       { type: TYPE.PENDING, meta },

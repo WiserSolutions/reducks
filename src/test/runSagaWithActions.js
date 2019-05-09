@@ -16,7 +16,9 @@ export async function runSagaWithActions(saga, getState = () => {}, ...actions) 
     saga
   )
 
-  actions.forEach(channel.put)
+  for (let i = 0, l = actions.length; i < l; ++i) {
+    await Promise.resolve(channel.put(actions[i]))
+  }
 
   return dispatched
 }
