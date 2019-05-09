@@ -3,6 +3,7 @@ import { takeLatest } from 'redux-saga/effects'
 import { asyncActionReducer } from '../reducers'
 import { asyncActionSaga } from '../sagas'
 import { asyncActionStatusSelector } from '../selectors'
+import { combineSelectors } from '../core'
 
 /**
  * Creates a duck managing fetching data on given trigger storing both the data and the loading state.
@@ -18,7 +19,10 @@ export const asyncActionDuck = (TRIGGER, effect) => duckFactory => {
   const reducer = createReducer(asyncActionReducer(TYPE))
 
   const getResult = createSelector('result')
-  const getStatus = asyncActionStatusSelector(duckFactory)
+  const getStatus = combineSelectors({
+    isPending: createSelector('isPending'),
+    error: createSelector('error')
+  })
 
   function* saga() {
     yield takeLatest(TRIGGER, asyncActionSaga(TYPE, effect))
