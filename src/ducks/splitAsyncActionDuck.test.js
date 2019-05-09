@@ -53,7 +53,7 @@ describe('splitAsyncActionDuck', () => {
       { type: TYPE.PENDING, meta: { trigger: triggers[1] } },
       { type: TYPE.PENDING, meta: { trigger: triggers[2] } },
       { type: TYPE.SUCCESS, payload: data, meta: { trigger: triggers[2] } },
-      { type: TYPE.FAILURE, payload: error, meta: { trigger: triggers[1] } }
+      { type: TYPE.FAILURE, payload: error, meta: { trigger: triggers[1] }, error: true }
     ]
     expect(dispatched).toEqual(expectedActions)
 
