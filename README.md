@@ -286,46 +286,80 @@ transitively.
 
 ###### asyncActionReducer
 
-Following utils help store info about async actions:
+Following utils help store info about async actions. Assuming `const LOAD_USERS = defineAsyncType('LOAD_USERS')`:
 
 - `asyncActionFlagReducer` stores a flag indicating whether an async action is currently pending,
+    ```javascript
+    const reducer = asyncActionFlagReducer(LOAD_USERS)
+    reducer(undefined, { type: 'INIT' }) // -> false
+    reducer(anyState, { type: LOAD_USERS.PENDING }) // -> true
+    reducer(anyState, { type: LOAD_USERS.SUCCESS }) // -> false
+    reducer(anyState, { type: LOAD_USERS.FAILURE }) // -> false
+    ```
 - `asyncActionStatusReducer` stores not just the status, but also the last error (failure payload),
+    ```javascript
+    const reducer = asyncActionFlagReducer(LOAD_USERS)
+    reducer(undefined, { type: 'INIT' }) // -> { isPending: false, error: undefined }
+    reducer(anyState, { type: LOAD_USERS.PENDING }) // -> { isPending: true, error: undefined }
+    reducer(anyState, { type: LOAD_USERS.SUCCESS }) // -> { isPending: false, error: undefined }
+    reducer(anyState, { type: LOAD_USERS.FAILURE, payload }) // -> { isPending: false, error: payload }
+    ```
 - `asyncActionReducer` stores status, last error, and last result (success payload),
+    ```javascript
+    const reducer = asyncActionReducer(LOAD_USERS, undefined, [])
+    reducer(undefined, { type: 'INIT' }) // -> { isPending: false, error: undefined, result: [] }
+    reducer({ result, error, ... }, { type: LOAD_USERS.PENDING }) // -> { isPending: true, error, result }
+    reducer(anyState, { type: LOAD_USERS.SUCCESS, payload }) // -> { isPending: false, error: undefined, result: payload }
+    reducer({ result, ... }, { type: LOAD_USERS.FAILURE, payload }) // -> { isPending: false, error: payload, result }
+    ```
 - `splitAsyncActionReducer` does the above but separately for multiple keys (when there's a single action used
   for handling multiple entities).
-
-```javascript
-const LOAD_USERS = defineAsyncType('LOAD_USERS')
-const reducer = combineReducers({
-  isLoading: asyncActionFlagReducer(LOAD_USERS), // Boolean
-  loadStatus: asyncActionStatusReducer(LOAD_USERS), // { isPending: Boolean, error: * }
-  users: asyncActionReducer(LOAD_USERS, undefined, []), // { isPending: Boolean, error: *, result: * }
-  usersBySearch: splitAsyncActionReducer(LOAD_USERS, ({ payload: { search } }) => search) // { [String]: { ...^^... } }
-})
-```
+    ```javascript
+    const reducer = splitAsyncActionReducer(LOAD_USERS, ({ meta: { search } }) => search)
+    reducer(undefined, { type: 'INIT' }) // -> {}
+    reducer({ a, ab, abc: { result, error, ... } }, { type: LOAD_USERS.PENDING, meta: { search: 'abc' } })
+    // -> { a, ab, abc: { isPending: false, error, result } }
+    reducer({ a, ab, abc }, { type: LOAD_USERS.SUCCESS, payload, meta: { search: 'abc' } })
+    // -> { a, ab, abc: { isPending: false, error: undefined, result: payload } }
+    reducer({ a, ab, abc: { result, ... } }, { type: LOAD_USERS.FAILURE, payload, meta: { search: 'abc' } })
+    // -> { a, ab, abc: { isPending: false, error: payload, result } }
+    ```
 
 ###### flagReducer
 
 `flagReducer` manages a boolean flag derived from lists of "true", "false", and "toggle" types.
 
 ```javascript
-const reducer = combineReducers({
-  isVisible: flagReducer([ENTER, SHOW], [HIDE, LEAVE], [TOGGLE]),
-  isHidden: flagReducer([HIDE, LEAVE], [ENTER, SHOW], [TOGGLE], true)
-})
+const reducer = flagReducer([ENTER, SHOW], [HIDE, LEAVE], [TOGGLE])
+reducer(undefined, { type: 'INIT' }) // -> false
+reducer(anyState, { type: SHOW }) // -> true
+reducer(anyState, { type: HIDE }) // -> false
+reducer(false, { type: TOGGLE }) // -> true
+reducer(true, { type: TOGGLE }) // -> false
+```
+
+```javascript
+const reducer = flagReducer([ENTER, SHOW], [HIDE, LEAVE], [TOGGLE], true)
+reducer(undefined, { type: 'INIT' }) // -> true
+// … the rest works just the same
 ```
 
 ###### singleActionReducer
 
-`singleActionReducer` collects data from just a single specific action (or rather message type).
+`singleActionReducer` collects data from just a single specific action (or rather message type). Assuming
+`const JUMP = defineType('JUMP')`:
 
 ```javascript
-const JUMP = defineType('JUMP')
-const jump = createAction('jump', (height, distance) => ({ height, distance }))
-const reducer = combineReducers({
-  lastJump: singleActionReducer(JUMP),
-  maxJumpDistance: singleActionReducer(JUMP, (state, { payload: { distance } }) => Math.max(state, distance), 0)
-})
+const reducer = singleActionReducer(JUMP)
+reducer(undefined, { type: 'INIT' }) // -> undefined
+reducer(undefined, { type: JUMP, payload }) // -> payload
+```
+
+```javascript
+const reducer = singleActionReducer(JUMP, (state, { payload: { distance } }) => Math.max(state, distance), 0)
+reducer(undefined, { type: 'INIT' }) // -> 0
+reducer(0, { type: JUMP, payload: { height: 120, distance: 180 } }) // -> 180
+reducer(180, { type: JUMP, payload: { height: 134, distance: 161 } }) // -> 180
 ```
 
 ##### Selectors
