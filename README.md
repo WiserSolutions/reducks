@@ -298,7 +298,7 @@ Following utils help store info about async actions. Assuming `const LOAD_USERS 
     ```
 - `asyncActionStatusReducer` stores not just the status, but also the last error (failure payload),
     ```javascript
-    const reducer = asyncActionFlagReducer(LOAD_USERS)
+    const reducer = asyncActionStatusReducer(LOAD_USERS)
     reducer(undefined, { type: 'INIT' }) // -> { isPending: false, error: undefined }
     reducer(anyState, { type: LOAD_USERS.PENDING }) // -> { isPending: true, error: undefined }
     reducer(anyState, { type: LOAD_USERS.SUCCESS }) // -> { isPending: false, error: undefined }
