@@ -1,6 +1,6 @@
 {
   "name": "@wisersolutions/reducks",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Tools for modular state management using `redux` and `redux-saga`",
   "repository": {
     "type": "git",
