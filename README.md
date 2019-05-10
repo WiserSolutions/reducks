@@ -430,6 +430,7 @@ a nice thing to know globally)._
 ```javascript
 const {
   TRIGGER_TYPE: SUBMIT_USER,
+  action: submitUser,
   EFFECT_TYPE: SAVE_USER,
   getResult: getSaveUserResult,
   getStatus: getSaveUserStatus
@@ -448,7 +449,20 @@ const {
   getResult: getComments, // -> (userId) => commentsForThatUser: *
   getStatus: getLoadCommentsStatus // -> (userId) => statusForThatUser: { isPending: Boolean, error: * }
 } = duck(splitAsyncActionDuck(LOAD_USER.SUCCESS, getKey, ::api.fetchComments))
-```  
+```
+
+`splitAsyncActionDuckWithTrigger` provides an extension just like `asyncActionDuckWithTrigger` above.
+
+```javascript
+const getKey = ({ payload: user }) => user.id
+const {
+  TRIGGER_TYPE: EXPAND_USER,
+  action: expandUser,
+  EFFECT_TYPE: LOAD_USER_COMMENTS,
+  // ... `getResults`, `getStatuses`, `getResult`, and `getStatus` same as above
+} = duck(splitAsyncActionDuck(LOAD_USER.SUCCESS, getKey, ::api.fetchComments))
+```
+ 
 
 ###### confirmDuck
 
