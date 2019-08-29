@@ -15,8 +15,8 @@
     "/lib"
   ],
   "scripts": {
-    "format": "prettier --write \"src/**/*.js\" --loglevel warn",
-    "lint": "eslint -f @wisersolutions/eslint-formatter-idea ./src",
+    "format": "prettier --write \"src/**/*.ts\" --loglevel warn",
+    "lint": "eslint --ext .ts -f @wisersolutions/eslint-formatter-idea ./src",
     "check-types": "tsc --noEmit",
     "test": "jest 'src/'",
     "build": "npm run build:types && npm run build:js",
@@ -30,6 +30,8 @@
     "@babel/preset-typescript": "^7.3.3",
     "@redux-saga/deferred": "^1.0.1",
     "@types/jest": "^24.0.18",
+    "@typescript-eslint/eslint-plugin": "^2.0.0",
+    "@typescript-eslint/parser": "^2.0.0",
     "@wisersolutions/eslint-config": "^1.0.5",
     "@wisersolutions/eslint-formatter-idea": "^1.0.5",
     "@wisersolutions/transpile-js": "^0.0.17",

@@ -1,8 +1,15 @@
 {
-  "extends": "@wisersolutions",
+  "extends": [
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "@wisersolutions",
+    "prettier/@typescript-eslint"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
   "overrides": [
     {
-      "files": ["src/**/*.test.js"],
+      "files": ["src/**/*.test.ts"],
       "env": {
         "jest": true
       }

@@ -5,19 +5,19 @@ export type Path = string | string[]
 
 export type ActionType = string
 export interface AsyncActionType {
-  PENDING: string,
-  SUCCESS: string,
+  PENDING: string
+  SUCCESS: string
   FAILURE: string
 }
-export interface Message extends Action {
-  type: ActionType,
-  payload?: any,
-  meta?: any
+export interface Message<Payload = unknown, Meta = undefined> extends Action {
+  type: ActionType
+  payload?: Payload
+  meta?: Meta
 }
 
-export type Selector<State = any, Selection = any> = (state: State) => Selection
+export type Selector<State = unknown, Selection = unknown> = (state: State) => Selection
 
-export interface Duck<State> {
-  reducer?: Reducer<State>,
+export interface Duck<State = unknown> {
+  reducer?: Reducer<State>
   saga?: Saga
 }

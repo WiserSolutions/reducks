@@ -2,7 +2,11 @@ import { runSaga, stdChannel, Saga } from 'redux-saga'
 
 import { Message } from '../types'
 
-export async function runSagaWithActions(saga: Saga, getState = () => {}, ...messages: Message[]) {
+export async function runSagaWithActions(
+  saga: Saga,
+  getState = (): unknown => undefined,
+  ...messages: Message[]
+): Promise<Message[]> {
   const dispatched: Message[] = []
   const channel = stdChannel()
 
