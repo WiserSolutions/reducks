@@ -9,7 +9,9 @@
     // Enable strictest settings like strictNullChecks & noImplicitAny.
     "strict": true,
     // Import non-ES modules as default imports.
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    // Ignore use of Jest globals in test tools.
+    "types": ["jest"]
   },
   "include": [
     "src"
