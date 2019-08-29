@@ -1,15 +1,16 @@
-function feedIterator(iterator, valueOrError) {
+function feedIterator<T>(iterator: Iterator<T>, valueOrError: any | Error) {
   if (valueOrError instanceof Error) {
-    return iterator.throw(valueOrError)
+    if (iterator.throw) return iterator.throw(valueOrError)
+    throw valueOrError
   }
   return iterator.next(valueOrError)
 }
 
-export function runIterator(iterator, args) {
+export function runIterator<T>(iterator: Iterator<T>, args: any[]) {
   return args.map(arg => feedIterator(iterator, arg).value)
 }
 
-export function runIteratorToEnd(iterator, args = []) {
+export function runIteratorToEnd<T>(iterator: Iterator<T>, args: any[] = []) {
   const results = []
   let i = 0
   let result
