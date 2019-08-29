@@ -17,11 +17,17 @@
   "scripts": {
     "format": "prettier --write \"src/**/*.js\" --loglevel warn",
     "lint": "eslint -f @wisersolutions/eslint-formatter-idea ./src",
+    "check-types": "tsc --noEmit",
     "test": "jest 'src/'",
-    "build": "transpile-js",
+    "build": "npm run build:types && npm run build:js",
+    "build:types": "tsc --declaration --emitDeclarationOnly",
+    "build:js": "transpile-js --extensions \".ts\" --source-maps inline",
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
+    "@babel/preset-typescript": "^7.3.3",
     "@redux-saga/deferred": "^1.0.1",
     "@wisersolutions/eslint-config": "^1.0.4",
     "@wisersolutions/eslint-formatter-idea": "^1.0.4",
@@ -32,7 +38,9 @@
     "eslint-config-prettier": "^6.0.0",
     "eslint-plugin-react": "^7.14.2",
     "jest": "^24.8.0",
-    "prettier": "^1.18.2"
+    "lodash": "^4.17.15",
+    "prettier": "^1.18.2",
+    "typescript": "^3.5.3"
   },
   "dependencies": {
     "@babel/runtime": "^7.5.4",

@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    // Target latest version of ECMAScript.
+    "target": "esnext",
+    // Search under node_modules for non-relative imports.
+    "moduleResolution": "node",
+    // Output folder for when `--emitDeclarationOnly` is used.
+    "outDir": "lib",
+    // Enable strictest settings like strictNullChecks & noImplicitAny.
+    "strict": true,
+    // Import non-ES modules as default imports.
+    "esModuleInterop": true
+  },
+  "include": [
+    "src"
+  ]
+}
