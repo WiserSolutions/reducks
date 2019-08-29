@@ -8,7 +8,7 @@ describe('asyncActionSaga', () => {
   const asyncType = defineAsyncType('TEST')
   const effect = jest.fn()
   const saga = asyncActionSaga(asyncType, effect)
-  const trigger = { payload: 'payload' }
+  const trigger = { type: 'TYPE', payload: 'payload' }
   const state = { dummy: 'state' }
 
   beforeEach(() => {

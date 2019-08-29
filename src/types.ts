@@ -14,6 +14,9 @@ export interface Message<Payload = unknown, Meta = undefined> extends Action {
   payload?: Payload
   meta?: Meta
 }
+export interface AsyncActionMeta<TriggerMessage> {
+  trigger: TriggerMessage
+}
 
 export type Selector<State = unknown, Selection = unknown> = (state: State) => Selection
 
