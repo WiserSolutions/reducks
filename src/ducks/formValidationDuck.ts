@@ -3,6 +3,7 @@ import { delay, takeLatest } from 'redux-saga/effects'
 import { combineReducers, composeReducers } from '../core'
 import { asyncActionStatusReducer, singleActionReducer } from '../reducers'
 import { asyncActionSaga } from '../sagas'
+import { nullishCoalescing } from '../utils/syntax'
 
 const identity = a => a
 
@@ -29,8 +30,8 @@ export const formValidationDuck = (
       errors: composeReducers(
         singleActionReducer(LOAD.SUCCESS, () => []),
         singleActionReducer(VALIDATE.SUCCESS, () => []),
-        singleActionReducer(VALIDATE.FAILURE, (state, { payload }) => getValidationErrors(payload) ?? state),
-        singleActionReducer(SAVE.FAILURE, (state, { payload }) => getSaveErrors(payload) ?? state)
+        singleActionReducer(VALIDATE.FAILURE, (state, { payload }) => nullishCoalescing(getValidationErrors(payload), state)),
+        singleActionReducer(SAVE.FAILURE, (state, { payload }) => nullishCoalescing(getSaveErrors(payload), state))
       ),
       status: asyncActionStatusReducer(VALIDATE)
     })

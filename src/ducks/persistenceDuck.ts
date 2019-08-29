@@ -20,7 +20,7 @@ export const persistenceDuck = (storage, triggers = '*', resetTriggers = [STATE_
 
   let isInitialized = false
   const reducer = (state, action) => {
-    if (isInitialized && !resetTriggers.includes(action?.type)) return state
+    if (isInitialized && !resetTriggers.includes(action && action.type)) return state
     isInitialized = true
     const initialValue = storage.get(storageKey)
     // only touch state if there's something to change (touch creates path and might prevent default initialization)

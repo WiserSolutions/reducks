@@ -3,7 +3,7 @@ import { put, call, select } from 'redux-saga/effects'
 export const asyncActionSaga = (
   { PENDING, SUCCESS, FAILURE },
   effect,
-  { getArgs = (action, state) => [action?.payload, state, action], getMeta = action => ({ trigger: action }) } = {}
+  { getArgs = (action, state) => [action && action.payload, state, action], getMeta = action => ({ trigger: action }) } = {}
 ) =>
   function*(action) {
     const state = yield select()
