@@ -1,1 +1,1 @@
-export const nullishCoalescing = (value, fallback) => value === undefined || value === null ? fallback : value
+export const nullishCoalescing = (value: any, fallback: any) => value === undefined || value === null ? fallback : value
