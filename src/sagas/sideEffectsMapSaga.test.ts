@@ -1,5 +1,5 @@
 import { sideEffectsMapSaga } from './sideEffectsMapSaga'
-import { runSagaWithActions } from '../test'
+import { message, runSagaWithActions } from '../test'
 
 describe('asyncActionSaga', () => {
   const FIRST_TYPE = 'FIRST_TYPE'
@@ -17,7 +17,7 @@ describe('asyncActionSaga', () => {
 
   it('maps actions to side-effect calls', async () => {
     const action = { type: SECOND_TYPE, payload: 'test payload' }
-    await runSagaWithActions(saga, () => state, { type: FIRST_TYPE }, { type: 'IGNORED' }, action)
+    await runSagaWithActions(saga, () => state, message(FIRST_TYPE), message('IGNORED'), action)
     expect(effect.mock.calls).toEqual([['first'], ['second', action.payload, action, state]])
   })
 })
