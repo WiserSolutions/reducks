@@ -1,19 +1,20 @@
 import { put, call, select } from 'redux-saga/effects'
+import { Saga, SagaIterator } from 'redux-saga'
 
 import { AsyncActionMeta, AsyncActionType, Message } from '../types'
 
-export const asyncActionSaga = <M extends Message>(
+export const asyncActionSaga = <M extends Message, Result = unknown>(
   { PENDING, SUCCESS, FAILURE }: AsyncActionType,
-  effect: (...args: any[]) => Promise<any>,
+  effect: (...args: unknown[]) => Promise<Result>,
   {
-    getArgs = (message, state) => [message && message.payload, state, message],
-    getMeta = message => ({ trigger: message })
+    getArgs = (message, state): [unknown | undefined, unknown, M] => [message && message.payload, state, message],
+    getMeta = (message): AsyncActionMeta<M> => ({ trigger: message })
   }: {
     getArgs?: (message: M, state?: unknown) => unknown[]
     getMeta?: (message: M, state?: unknown) => AsyncActionMeta<M>
   } = {}
-) =>
-  function*(message: M) {
+): Saga =>
+  function*(message: M): SagaIterator {
     const state = yield select()
     const meta = getMeta(message, state)
     yield put({ type: PENDING, meta })
