@@ -1,10 +1,10 @@
 module.exports = {
   rootDir: 'src',
   verbose: true,
-  testRegex: '.test.js$',
+  testRegex: '.test.ts$',
   collectCoverage: true,
   coverageDirectory: '../coverage',
   coveragePathIgnorePatterns: ['/node_modules/'],
   transformIgnorePatterns: ['/node_modules/'],
-  collectCoverageFrom: ['**/*.{js}', '!**/*.test.{js}']
+  collectCoverageFrom: ['**/*.{ts}', '!**/*.test.{ts}']
 }
