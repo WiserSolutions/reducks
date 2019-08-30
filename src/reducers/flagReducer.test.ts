@@ -1,16 +1,15 @@
 import { flagReducer } from './flagReducer'
-
-const type = 'TEST_ACTION'
-const action = payload => ({ type, payload })
+import { message } from '../test'
 
 describe('flagReducer', () => {
-  const turnOn = { type: 'TURN_ON' }
-  const turnOff = { type: 'TURN_OFF' }
-  const toggle = { type: 'TOGGLE' }
+  const turnOn = message('TURN_ON')
+  const turnOff = message('TURN_OFF')
+  const toggle = message('TOGGLE')
+  const otherMessage = message('OTHER_ACTION')
   const reducer = flagReducer([turnOn.type], [turnOff.type], [toggle.type])
 
   it('sets initial value to `false`', () => {
-    expect(reducer(undefined, action)).toBe(false)
+    expect(reducer(undefined, otherMessage)).toBe(false)
   })
 
   it('sets state to `true` on "truthy" action', () => {
@@ -27,10 +26,10 @@ describe('flagReducer', () => {
   })
 
   it('sets a different initial value when supplied', () => {
-    expect(flagReducer([turnOn.type], [turnOff.type], [toggle.type], true)(undefined, action)).toBe(true)
+    expect(flagReducer([turnOn.type], [turnOff.type], [toggle.type], true)(undefined, otherMessage)).toBe(true)
   })
 
   it('ignores other actions', () => {
-    expect(reducer(false, action)).toBe(false)
+    expect(reducer(false, otherMessage)).toBe(false)
   })
 })

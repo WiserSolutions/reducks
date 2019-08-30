@@ -1,5 +1,13 @@
-export function flagReducer(trueTypes, falseTypes, toggleTypes = [], initialValue = false) {
-  return (state = initialValue, { type }) => {
+import { ActionType } from '../types'
+import { Reducer } from 'redux'
+
+export function flagReducer(
+  trueTypes: ActionType[],
+  falseTypes: ActionType[],
+  toggleTypes: ActionType[] = [],
+  initialValue = false
+): Reducer<boolean> {
+  return (state = initialValue, { type }): boolean => {
     if (trueTypes.includes(type)) {
       return true
     }
