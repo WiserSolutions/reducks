@@ -29,6 +29,7 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
     "@babel/preset-typescript": "^7.3.3",
     "@redux-saga/deferred": "^1.0.1",
+    "@redux-saga/types": "^1.0.2",
     "@types/jest": "^24.0.18",
     "@types/lodash.flatten": "^4.4.6",
     "@types/lodash.flowright": "^3.5.6",

@@ -1,30 +1,37 @@
 import { arrayOfDeferred } from '@redux-saga/deferred'
 
-import { runSagaWithActions } from '../test'
+import { messageOfType, runSagaWithActions } from '../test'
 import { takeLatestBy } from './takeLatestBy'
+import { ActionType, Message } from '../types'
 
 describe('takeLatestBy', () => {
   it('takes latest separately per key', async () => {
     const TYPE = 'TEST_TYPE'
+    type TestMessage = Message<typeof TYPE, { id: number; data: string }>
     const args = ['foo', 'bar']
-    const action = (id, data) => ({ type: TYPE, payload: { id, data } })
+    const message = messageOfType(TYPE)
     const defs = arrayOfDeferred(3)
     let workerIdx = 0
-    const finished = []
-    function* worker(arg1, arg2, { payload: { id, data } }) {
+    const finished: { id: number; data: string; args: any[]; result: string }[] = []
+    function* worker({ payload: { id, data } }: TestMessage, arg1: string, arg2: string) {
       const def = defs[workerIdx++]
       const result = yield def.promise
       finished.push({ id, data, args: [arg1, arg2], result })
     }
     await runSagaWithActions(
       function*() {
-        yield takeLatestBy([TYPE], ({ payload: { id } }) => id, worker, ...args)
+        yield takeLatestBy<ActionType, (message: TestMessage, ...args: string[]) => any>(
+          TYPE,
+          ({ payload: { id } }) => id,
+          worker,
+          ...args
+        )
       },
       undefined,
-      action(1, 'A'),
-      action(2, 'B'),
+      message({ id: 1, data: 'A' }),
+      message({ id: 2, data: 'B' }),
       { type: 'OTHER_TYPE', payload: { foo: 'bar' } },
-      action(1, 'C')
+      message({ id: 1, data: 'C' })
     )
 
     await defs.forEach(({ resolve }, idx) => resolve(`result-${idx + 1}`))
