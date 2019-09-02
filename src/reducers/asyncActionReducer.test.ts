@@ -4,10 +4,12 @@ import { defineAsyncType } from '../core'
 import {
   asyncActionFlagReducer,
   asyncActionReducer,
+  AsyncActionState,
   asyncActionStatusReducer,
   splitAsyncActionReducer
 } from './asyncActionReducer'
 import { testReducerChanges } from '../test/testReducer'
+import { ActionType } from '../types'
 
 const TYPE = 'SYNC_TYPE'
 const ASYNC_TYPE = defineAsyncType('ASYNC_TYPE')
@@ -96,8 +98,8 @@ describe('asyncActionReducer', () => {
 })
 
 describe('splitAsyncActionReducer', () => {
-  const reducer = splitAsyncActionReducer(ASYNC_TYPE, ({ meta: { path } }) => path)
-  const action = (type, path, payload) => ({ type, payload, meta: { path } })
+  const reducer = splitAsyncActionReducer(ASYNC_TYPE, ({ meta: { path } = { path: 'default.path' } }) => path)
+  const message = (type: ActionType, path: string, payload?: any) => ({ type, payload, meta: { path } })
   const result = 'previous data'
 
   it('inits correctly', () => {
@@ -108,10 +110,16 @@ describe('splitAsyncActionReducer', () => {
     const step = testReducerChanges(reducer, {
       first: { result: 'old result', isPending: false, error: undefined }
     })
-    step(action(PENDING, 'first'), setIn('first.isPending', true))
-    step(action(PENDING, 'maybe.second'), setIn('maybe.second.isPending', true))
-    step(action(FAILURE, 'maybe.second', error), updateIn('maybe.second', sub => ({ ...sub, isPending: false, error })))
-    step(action(TYPE, 'ignored'), s => s)
-    step(action(SUCCESS, 'first', result), updateIn('first', sub => ({ ...sub, isPending: false, result })))
+    step(message(PENDING, 'first'), setIn('first.isPending', true))
+    step(message(PENDING, 'maybe.second'), setIn('maybe.second.isPending', true))
+    step(
+      message(FAILURE, 'maybe.second', error),
+      updateIn('maybe.second', (sub: AsyncActionState) => ({ ...sub, isPending: false, error }))
+    )
+    step(message(TYPE, 'ignored'), s => s)
+    step(
+      message(SUCCESS, 'first', result),
+      updateIn('first', (sub: AsyncActionState) => ({ ...sub, isPending: false, result }))
+    )
   })
 })
