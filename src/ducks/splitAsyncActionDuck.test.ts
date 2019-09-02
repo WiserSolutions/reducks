@@ -6,11 +6,19 @@ import { runSagaWithActions } from '../test'
 import { splitAsyncActionDuck } from './splitAsyncActionDuck'
 import { createDuckFactory } from '../core'
 import { testReducerChanges } from '../test/testReducer'
+import { AsyncActionState } from '../reducers'
+
+type DuckState = Record<string, AsyncActionState<string>>
+type State = {
+  test: {
+    duck: DuckState
+  }
+}
 
 describe('splitAsyncActionDuck', () => {
-  const factory = createDuckFactory('test.duck')
+  const factory = createDuckFactory<State, DuckState>('test.duck')
   const TRIGGER_TYPE = 'TRIGGER_ACTION'
-  const trigger = (key, payload) => ({
+  const trigger = (key: string, payload: any) => ({
     type: TRIGGER_TYPE,
     payload,
     meta: { key }
@@ -49,9 +57,9 @@ describe('splitAsyncActionDuck', () => {
     await defs[2].resolve(data)
     await defs[1].reject(error)
     const expectedActions = [
-      { type: TYPE.PENDING, meta: { trigger: triggers[0] } },
-      { type: TYPE.PENDING, meta: { trigger: triggers[1] } },
-      { type: TYPE.PENDING, meta: { trigger: triggers[2] } },
+      { type: TYPE.PENDING, payload: undefined, meta: { trigger: triggers[0] } },
+      { type: TYPE.PENDING, payload: undefined, meta: { trigger: triggers[1] } },
+      { type: TYPE.PENDING, payload: undefined, meta: { trigger: triggers[2] } },
       { type: TYPE.SUCCESS, payload: data, meta: { trigger: triggers[2] } },
       { type: TYPE.FAILURE, payload: error, meta: { trigger: triggers[1] }, error: true }
     ]
@@ -61,7 +69,7 @@ describe('splitAsyncActionDuck', () => {
     const expectedChanges = [
       setIn('test.duck.a', { result: undefined, isPending: true, error: undefined }),
       setIn('test.duck.b', { result: undefined, isPending: true, error: undefined }),
-      s => s,
+      (s: Record<string, AsyncActionState<string>>) => s,
       setIn('test.duck.a', { result: data, isPending: false, error: undefined }),
       setIn('test.duck.b', { result: undefined, isPending: false, error })
     ]

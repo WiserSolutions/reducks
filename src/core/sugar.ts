@@ -7,25 +7,28 @@ import { defineAsyncType, defineType } from './types'
 import { createAction } from './actions'
 import { createSelector } from './selectors'
 import { composeDucks } from './ducks'
+import { ActionType, Duck, DuckFactory, DuckFactoryTerse, DuckFactoryVerbose, Path } from '../types'
 
-const keepReference = dest => factory => (...args) => {
+const keepReference = <T, Args extends any[]>(dest: T[]) => (factory: (...args: Args) => T) => (...args: Args) => {
   const instance = factory(...args)
   dest.unshift(instance)
   return instance
 }
 
-export function createDuckFactory(path) {
+export function createDuckFactory<GlobalState extends object, LocalState>(
+  path: Path
+): DuckFactory<GlobalState, LocalState> {
   const normalizedPath = toPath(path)
   const normalizedPathString = normalizedPath.join('.')
-  const prefixType = type => `${normalizedPathString}.${type}`
+  const prefixType = (type: ActionType): ActionType => `${normalizedPathString}.${type}`
   const selector = getIn(normalizedPath)
-  const getPath = subPath => [...normalizedPath, ...(subPath ? toPath(subPath) : [])]
+  const getPath = (subPath: Path) => [...normalizedPath, ...(subPath ? toPath(subPath) : [])]
 
-  const createdDucks = []
-  const createdChildren = []
+  const createdDucks: Duck<GlobalState>[] = []
+  const createdChildren: DuckFactory<GlobalState, any>[] = []
 
-  // verbose API
-  const duckFactory = {
+  let duckFactory: DuckFactory<GlobalState, LocalState>
+  const verboseApi: DuckFactoryVerbose<GlobalState, LocalState> = {
     defineType: flowRight(
       defineType,
       prefixType
@@ -42,8 +45,8 @@ export function createDuckFactory(path) {
             selector
           )
         : selector,
-    createReducer: reducer => (state = {}, action) =>
-      updateIn(normalizedPath, subState => reducer(subState, action))(state),
+    createReducer: reducer => (state = {} as GlobalState, action) =>
+      updateIn(normalizedPath, (subState: LocalState) => reducer(subState, action))(state),
     getPath,
     createDuck: keepReference(createdDucks)(genericDuck => genericDuck(duckFactory)),
     createSagaDuck: keepReference(createdDucks)(saga => ({ saga })),
@@ -51,21 +54,19 @@ export function createDuckFactory(path) {
     collectCreatedDucks: () => flatten([createdDucks, ...createdChildren.map(child => child.collectCreatedDucks())]),
     collectAndComposeCreatedDucks: () => composeDucks(...duckFactory.collectCreatedDucks())
   }
-
-  // terse API
-  Object.assign(duckFactory, {
-    type: duckFactory.defineType,
-    asyncType: duckFactory.defineAsyncType,
-    action: duckFactory.createAction,
-    reducer: duckFactory.createReducer,
-    selector: duckFactory.createSelector,
-    path: duckFactory.getPath,
-    duck: duckFactory.createDuck,
-    saga: duckFactory.createSagaDuck,
-    nest: duckFactory.createNestedFactory,
-    collect: duckFactory.collectAndComposeCreatedDucks
-  })
-
+  const terseApi: DuckFactoryTerse<GlobalState, LocalState> = {
+    type: verboseApi.defineType,
+    asyncType: verboseApi.defineAsyncType,
+    action: verboseApi.createAction,
+    reducer: verboseApi.createReducer,
+    selector: verboseApi.createSelector,
+    path: verboseApi.getPath,
+    duck: verboseApi.createDuck,
+    saga: verboseApi.createSagaDuck,
+    nest: verboseApi.createNestedFactory,
+    collect: verboseApi.collectAndComposeCreatedDucks
+  }
+  duckFactory = { ...verboseApi, ...terseApi }
   return duckFactory
 }
 

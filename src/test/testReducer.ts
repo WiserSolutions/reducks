@@ -3,10 +3,10 @@ import { Reducer } from 'redux'
 import { Message, Selector } from '../types'
 
 /* eslint-env jest */
-export function testReducerChanges<State>(
-  reducer: Reducer<State>,
+export function testReducerChanges<State, Msg extends Message>(
+  reducer: Reducer<State, Msg>,
   initialState: State
-): (message: Message, expectedChange: (prevState: State) => State) => void {
+): (message: Msg, expectedChange: (prevState: State) => State) => void {
   let state = initialState
   return (message, expectedChange): void => {
     const expectedState = expectedChange(state)

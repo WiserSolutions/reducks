@@ -1,4 +1,4 @@
-import { ActionType } from '../types'
+import { ActionType, MessageCreator } from '../types'
 
 export const createAction = <
   Type extends ActionType = ActionType,
@@ -9,7 +9,7 @@ export const createAction = <
   type: Type,
   getPayload?: (...args: Input) => Payload,
   getMeta?: (...args: Input) => Meta
-) => (...args: Input) => ({
+): MessageCreator<Type, Input, Payload, Meta> => (...args: Input) => ({
   type,
   payload: getPayload ? getPayload(...args) : args[0],
   meta: getMeta ? getMeta(...args) : undefined
