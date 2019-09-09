@@ -755,6 +755,7 @@ export function reduceAndSelectDuck<Value, GlobalState extends Object = any>(
  * @param messagePattern
  * @param getKey
  * @param effect
+ * @param reduce customize result to state reduction (e.g. to support pagination)
  */
 export function splitAsyncActionDuck<
   Msg extends Message,
@@ -764,7 +765,8 @@ export function splitAsyncActionDuck<
 >(
   messagePattern: MessagePattern,
   getKey: (trigger: Msg) => Key,
-  effect: (triggerPayload: Msg['payload'], state: GlobalState, trigger: Msg) => Promise<Result>
+  effect: (triggerPayload: Msg['payload'], state: GlobalState, trigger: Msg) => Promise<Result>,
+  reduce: Reducer<Result>
 ): DuckCreator<
   {
     TYPE: AsyncActionMessageTypes
@@ -784,6 +786,7 @@ export function splitAsyncActionDuck<
  * `splitAsyncActionDuck` along with the supplied arguments.
  * @param getKey
  * @param effect
+ * @param reduce
  */
 export function splitAsyncActionDuckWithTrigger<
   TriggerArg,
@@ -793,7 +796,8 @@ export function splitAsyncActionDuckWithTrigger<
   TriggerType extends MessageType = MessageType
 >(
   getKey: (trigger: Message<TriggerType, TriggerArg>) => Key,
-  effect: (triggerPayload: TriggerArg, state: GlobalState, trigger: Message<TriggerType, TriggerArg>) => Promise<Result>
+  effect: (triggerPayload: TriggerArg, state: GlobalState, trigger: Message<TriggerType, TriggerArg>) => Promise<Result>,
+  reduce: Reducer<Result>
 ): DuckCreator<
   {
     TRIGGER_TYPE: TriggerType

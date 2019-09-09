@@ -6,10 +6,12 @@ import { asyncActionSaga } from '../sagas'
 import { takeLatestBy } from '../effects'
 import { splitAsyncActionReducer } from '../reducers'
 
-export const splitAsyncActionDuck = (TRIGGER, getKey, effect) => duckFactory => {
+export const splitAsyncActionDuck = (TRIGGER, getKey, effect, reduce) => duckFactory => {
   const TYPE = duckFactory.defineAsyncType('EFFECT')
 
-  const reducer = duckFactory.createReducer(splitAsyncActionReducer(TYPE, action => getKey(action.meta.trigger)))
+  const reducer = duckFactory.createReducer(
+    splitAsyncActionReducer(TYPE, action => getKey(action.meta.trigger), reduce)
+  )
 
   const selector = duckFactory.createSelector()
   const resultSelector = getIn('result')
