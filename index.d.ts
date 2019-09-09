@@ -766,7 +766,7 @@ export function splitAsyncActionDuck<
   messagePattern: MessagePattern,
   getKey: (trigger: Msg) => Key,
   effect: (triggerPayload: Msg['payload'], state: GlobalState, trigger: Msg) => Promise<Result>,
-  reduce: Reducer<Result>
+  reduce?: Reducer<Result>
 ): DuckCreator<
   {
     TYPE: AsyncActionMessageTypes
@@ -797,7 +797,7 @@ export function splitAsyncActionDuckWithTrigger<
 >(
   getKey: (trigger: Message<TriggerType, TriggerArg>) => Key,
   effect: (triggerPayload: TriggerArg, state: GlobalState, trigger: Message<TriggerType, TriggerArg>) => Promise<Result>,
-  reduce: Reducer<Result>
+  reduce?: Reducer<Result>
 ): DuckCreator<
   {
     TRIGGER_TYPE: TriggerType
