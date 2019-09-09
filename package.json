@@ -12,10 +12,11 @@
   "module": "./es/index.js",
   "files": [
     "/es",
-    "/lib"
+    "/lib",
+    "index.d.ts"
   ],
   "scripts": {
-    "format": "prettier --write \"src/**/*.js\" --loglevel warn",
+    "format": "prettier --write \"src/**/*.{js,ts}\" --loglevel warn",
     "lint": "eslint -f @wisersolutions/eslint-formatter-idea ./src",
     "test": "jest 'src/'",
     "build": "transpile-js",
@@ -56,5 +57,6 @@
     "lodash.topairs": "^4.3.0",
     "lodash.topath": "^4.5.2",
     "redux-saga": "^1.0.5"
-  }
+  },
+  "typings": "./index.d.ts"
 }
