@@ -2,7 +2,7 @@ import { all, fork, take } from 'redux-saga/effects'
 
 function* takeOneHelper(patternOrChannel, worker, ...args) {
   const action = yield take(patternOrChannel)
-  yield fork(worker, ...args, action)
+  yield fork(worker, action, ...args)
 }
 export const takeOne = (...args) => fork(takeOneHelper, ...args)
 

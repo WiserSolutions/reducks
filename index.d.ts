@@ -1,6 +1,7 @@
 import { Reducer, Action } from 'redux'
 import { Saga } from 'redux-saga'
 import { ActionMatchingPattern, ActionPattern, Effect } from '@redux-saga/types'
+import { ForkEffect } from '@redux-saga/core/effects'
 
 // region: Types
 
@@ -255,6 +256,24 @@ export function createSelector<Selection, State>(selector: ObjectPath | Selector
 export function combineSelectors<Selection, State extends object>(
   selectorMap: { [K in keyof State]: Selector<any, State[K]> }
 ): Selection
+
+/**
+ * Given an action-matching pattern and an effect, takes just the first matching action and performs the effect with it.
+ * @param patternOrChannel
+ * @param worker
+ * @param args
+ */
+export function takeOne<
+  Pattern extends MessagePattern,
+  Args extends any[],
+  Fn extends (action?: MessageMatchingPattern<Pattern>, ...args: Args) => any
+>(patternOrChannel: Pattern, worker: Fn, ...args: Args): ForkEffect
+
+/**
+ * Composes sagas to run in parallel.
+ * @param sagas
+ */
+export function composeSagas(...sagas: Saga[]): Saga
 
 /**
  * Composes multiple ducks into a single duck (i.e. `{ reducer, saga }`) to allow further composition
