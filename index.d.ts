@@ -158,12 +158,12 @@ export interface DuckFactory<GlobalState extends object = any, LocalState = any>
   /**
    * Collects all ducks created by this factory and its descendants (created with `createNestedFactory`).
    */
-  collectCreatedDucks: () => Duck<GlobalState>[]
+  collectCreatedDucks: () => Duck<any, GlobalState>[]
   /**
    * Collects all ducks created by this factory and its descendants and composed them into a single
    * duck (i.e. `{ reducer, saga }`).
    */
-  collectAndComposeCreatedDucks: () => Duck<GlobalState>
+  collectAndComposeCreatedDucks: () => Duck<{}, GlobalState>
 
   // terse API
   /** `defineType` alias */
@@ -280,7 +280,7 @@ export function composeSagas(...sagas: Saga[]): Saga
  * up until registration with the Redux system.
  * @param ducks
  */
-export function composeDucks<GlobalState extends object>(...ducks: Duck<GlobalState>[]): Duck<GlobalState>
+export function composeDucks<GlobalState extends object>(...ducks: Duck<any, GlobalState>[]): Duck<{}, GlobalState>
 
 /**
  * Given an object path, creates a duck factory that namespaces all its products to that path.
