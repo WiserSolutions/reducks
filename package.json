@@ -4,7 +4,7 @@
   "description": "Tools for modular state management using `redux` and `redux-saga`",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/WisePricer/reducks"
+    "url": "git+https://github.com/WiserSolutions/reducks"
   },
   "author": "Wiser Solutions, Inc.",
   "license": "MIT",
