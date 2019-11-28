@@ -110,8 +110,14 @@ describe('splitAsyncActionReducer', () => {
     })
     step(action(PENDING, 'first'), setIn('first.isPending', true))
     step(action(PENDING, 'maybe.second'), setIn('maybe.second.isPending', true))
-    step(action(FAILURE, 'maybe.second', error), updateIn('maybe.second', sub => ({ ...sub, isPending: false, error })))
+    step(
+      action(FAILURE, 'maybe.second', error),
+      updateIn('maybe.second', sub => ({ ...sub, isPending: false, error }))
+    )
     step(action(TYPE, 'ignored'), s => s)
-    step(action(SUCCESS, 'first', result), updateIn('first', sub => ({ ...sub, isPending: false, result })))
+    step(
+      action(SUCCESS, 'first', result),
+      updateIn('first', sub => ({ ...sub, isPending: false, result }))
+    )
   })
 })

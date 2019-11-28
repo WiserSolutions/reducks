@@ -8,7 +8,10 @@ export const asyncActionFlagReducer = ({ PENDING, SUCCESS, FAILURE }) => flagRed
 
 const status = type => ({
   isPending: asyncActionFlagReducer(type),
-  error: composeReducers(singleActionReducer(type.FAILURE), singleActionReducer(type.SUCCESS, () => undefined))
+  error: composeReducers(
+    singleActionReducer(type.FAILURE),
+    singleActionReducer(type.SUCCESS, () => undefined)
+  )
 })
 export const asyncActionStatusReducer = type => combineReducers(status(type))
 

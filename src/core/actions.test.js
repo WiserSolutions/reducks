@@ -15,7 +15,11 @@ describe('actions', () => {
     })
 
     it('creates an action creator with payload and meta', () => {
-      const actionCreator = createAction(TEST_TYPE, arg => `foo${arg}`, arg => `${arg}baz`)
+      const actionCreator = createAction(
+        TEST_TYPE,
+        arg => `foo${arg}`,
+        arg => `${arg}baz`
+      )
       expect(actionCreator('bar')).toEqual({ type: TEST_TYPE, payload: 'foobar', meta: 'barbaz' })
     })
   })

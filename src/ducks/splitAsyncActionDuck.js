@@ -18,18 +18,8 @@ export const splitAsyncActionDuck = (TRIGGER, getKey, effect, reduce) => duckFac
   const statusSelector = ({ isPending = false, error } = {}) => ({ isPending, error })
   const getResults = state => mapValues(selector(state), resultSelector)
   const getStatuses = state => mapValues(selector(state), statusSelector)
-  const getResult = path =>
-    flowRight(
-      resultSelector,
-      getIn(path),
-      selector
-    )
-  const getStatus = path =>
-    flowRight(
-      statusSelector,
-      getIn(path),
-      selector
-    )
+  const getResult = path => flowRight(resultSelector, getIn(path), selector)
+  const getStatus = path => flowRight(statusSelector, getIn(path), selector)
 
   function* saga() {
     yield takeLatestBy(TRIGGER, getKey, asyncActionSaga(TYPE, effect))

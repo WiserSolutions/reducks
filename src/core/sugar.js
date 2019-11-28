@@ -26,22 +26,10 @@ export function createDuckFactory(path) {
 
   // verbose API
   const duckFactory = {
-    defineType: flowRight(
-      defineType,
-      prefixType
-    ),
-    defineAsyncType: flowRight(
-      defineAsyncType,
-      prefixType
-    ),
+    defineType: flowRight(defineType, prefixType),
+    defineAsyncType: flowRight(defineAsyncType, prefixType),
     createAction,
-    createSelector: subSelector =>
-      subSelector
-        ? flowRight(
-            createSelector(subSelector),
-            selector
-          )
-        : selector,
+    createSelector: subSelector => (subSelector ? flowRight(createSelector(subSelector), selector) : selector),
     createReducer: reducer => (state = {}, action) =>
       updateIn(normalizedPath, subState => reducer(subState, action))(state),
     getPath,
