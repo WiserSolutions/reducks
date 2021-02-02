@@ -30,6 +30,9 @@ describe('sugar', () => {
 
     it('provides nested reducer creator', () => {
       const { createReducer } = createDuckFactory(path)
+      const nestedReducerMock = jest.fn()
+      createReducer(nestedReducerMock)(state, action)
+      expect(nestedReducerMock).toHaveBeenCalledWith(state.test.path, action, state)
       expect(createReducer((prev, act) => ({ foo: { ...prev, action: act } }))(state, action)).toEqual({
         test: { path: { foo: { foo: 'bar', action } } }
       })

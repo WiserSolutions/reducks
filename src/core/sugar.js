@@ -31,7 +31,7 @@ export function createDuckFactory(path) {
     createAction,
     createSelector: subSelector => (subSelector ? flowRight(createSelector(subSelector), selector) : selector),
     createReducer: reducer => (state = {}, action) =>
-      updateIn(normalizedPath, subState => reducer(subState, action))(state),
+      updateIn(normalizedPath, subState => reducer(subState, action, state))(state),
     getPath,
     createDuck: keepReference(createdDucks)(genericDuck => genericDuck(duckFactory)),
     createSagaDuck: keepReference(createdDucks)(saga => ({ saga })),
