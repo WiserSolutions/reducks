@@ -13,6 +13,18 @@ describe('reducers', () => {
         prop: 'init-data+data'
       })
     })
+
+    it('passes additional arguments to sub-reducers if any are supplied', () => {
+      const first = jest.fn().mockImplementation(plus('prop'))
+      const second = jest.fn().mockImplementation(minus('prop'))
+      const reducer = composeReducers(first, second)
+      const anotherArg = { some: 'otherData' }
+      const initialState = { prop: 'init' }
+      const msg = action('data')
+      reducer(initialState, msg, anotherArg)
+      expect(second).toHaveBeenCalledWith(initialState, msg, anotherArg)
+      expect(first).toHaveBeenCalledWith(minus('prop')(initialState, msg), msg, anotherArg)
+    })
   })
 
   describe('combineReducers', () => {
@@ -38,6 +50,22 @@ describe('reducers', () => {
         simple: { a: 'A+data' },
         parent: { child: { b: 'B-data' } }
       })
+    })
+
+    it('passes additional arguments to sub-selectors', () => {
+      const a = jest.fn().mockImplementation(plus('a'))
+      const b = jest.fn().mockImplementation(minus('b'))
+      const reducer = combineReducers({
+        simple: a,
+        parent: {
+          child: b
+        }
+      })
+      const initialState = { simple: { a: 'A' }, parent: { child: { b: 'B' } } }
+      const msg = action('data')
+      reducer(initialState, msg, initialState)
+      expect(a).toHaveBeenCalledWith(initialState.simple, msg, initialState)
+      expect(b).toHaveBeenCalledWith(initialState.parent.child, msg, initialState)
     })
   })
 })
