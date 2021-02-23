@@ -26,8 +26,9 @@ export const confirmDuck = (action, createTriggerPayload = identity, createConfi
   const { selector: getTriggerPayload } = triggerPayloadDuck
 
   function* performEffect({ payload }) {
+    const state = yield select()
     const triggerPayload = yield select(getTriggerPayload)
-    yield put(action(triggerPayload, payload))
+    yield put(action(triggerPayload, payload, state))
   }
 
   const { reducer, saga } = composeDucks(isPendingDuck, triggerPayloadDuck, {
