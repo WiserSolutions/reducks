@@ -1,7 +1,7 @@
 import { put, call, select } from 'redux-saga/effects'
 
 import { defineAsyncType } from '../core'
-import { asyncActionSaga } from './asyncActionSaga'
+import { asyncActionSaga, ASYNC_ACTION_ID_KEY } from './asyncActionSaga'
 import { runIteratorToEnd } from '../test'
 
 describe('asyncActionSaga', () => {
@@ -19,9 +19,9 @@ describe('asyncActionSaga', () => {
     const result = 'result'
     expect(runIteratorToEnd(saga(trigger), [undefined, state, undefined, result])).toEqual([
       select(),
-      put({ type: asyncType.PENDING, meta: { trigger } }),
+      put({ type: asyncType.PENDING, meta: { trigger, [ASYNC_ACTION_ID_KEY]: expect.any(String) } }),
       call(effect, trigger.payload, state, trigger),
-      put({ type: asyncType.SUCCESS, payload: result, meta: { trigger } })
+      put({ type: asyncType.SUCCESS, payload: result, meta: { trigger, [ASYNC_ACTION_ID_KEY]: expect.any(String) } })
     ])
   })
 
@@ -29,9 +29,14 @@ describe('asyncActionSaga', () => {
     const error = new Error()
     expect(runIteratorToEnd(saga(trigger), [undefined, state, undefined, error])).toEqual([
       select(),
-      put({ type: asyncType.PENDING, meta: { trigger } }),
+      put({ type: asyncType.PENDING, meta: { trigger, [ASYNC_ACTION_ID_KEY]: expect.any(String) } }),
       call(effect, trigger.payload, state, trigger),
-      put({ type: asyncType.FAILURE, payload: error, meta: { trigger }, error: true })
+      put({
+        type: asyncType.FAILURE,
+        payload: error,
+        meta: { trigger, [ASYNC_ACTION_ID_KEY]: expect.any(String) },
+        error: true
+      })
     ])
   })
 })

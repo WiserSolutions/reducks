@@ -3,6 +3,7 @@ import { arrayOfDeferred } from '@redux-saga/deferred'
 import { runSagaWithActions } from '../test'
 import { asyncActionDuck } from './asyncActionDuck'
 import { createDuckFactory } from '../core'
+import { ASYNC_ACTION_ID_KEY } from '../sagas'
 
 describe('asyncActionDuck', () => {
   const factory = createDuckFactory('test.duck')
@@ -28,7 +29,7 @@ describe('asyncActionDuck', () => {
     const triggers = [trigger('first.payload'), trigger('second.payload')]
     const state = { dummy: 'state' }
     const dispatched = await runSagaWithActions(saga, () => state, ...triggers)
-    const meta = { trigger: triggers[1] }
+    const meta = { trigger: triggers[1], [ASYNC_ACTION_ID_KEY]: expect.any(String) }
     // note that `effect` is called twice, because the first one goes off before the second trigger is consumed…
     expect(effect).toHaveBeenCalledWith(triggers[0].payload, state, triggers[0])
     expect(effect).toHaveBeenCalledWith(triggers[1].payload, state, triggers[1])
@@ -36,7 +37,7 @@ describe('asyncActionDuck', () => {
     await defs[0].resolve({ obsolete: 'data' })
     await defs[1].resolve(data)
     expect(dispatched).toEqual([
-      { type: TYPE.PENDING, meta: { trigger: triggers[0] } },
+      { type: TYPE.PENDING, meta: { trigger: triggers[0], [ASYNC_ACTION_ID_KEY]: expect.any(String) } },
       { type: TYPE.PENDING, meta },
       { type: TYPE.SUCCESS, payload: data, meta }
     ])

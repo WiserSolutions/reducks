@@ -6,6 +6,7 @@ import { runSagaWithActions } from '../test'
 import { splitAsyncActionDuck } from './splitAsyncActionDuck'
 import { createDuckFactory } from '../core'
 import { testReducerChanges } from '../test/testReducer'
+import { ASYNC_ACTION_ID_KEY } from '../sagas'
 
 describe('splitAsyncActionDuck', () => {
   const factory = createDuckFactory('test.duck')
@@ -49,11 +50,16 @@ describe('splitAsyncActionDuck', () => {
     await defs[2].resolve(data)
     await defs[1].reject(error)
     const expectedActions = [
-      { type: TYPE.PENDING, meta: { trigger: triggers[0] } },
-      { type: TYPE.PENDING, meta: { trigger: triggers[1] } },
-      { type: TYPE.PENDING, meta: { trigger: triggers[2] } },
-      { type: TYPE.SUCCESS, payload: data, meta: { trigger: triggers[2] } },
-      { type: TYPE.FAILURE, payload: error, meta: { trigger: triggers[1] }, error: true }
+      { type: TYPE.PENDING, meta: { trigger: triggers[0], [ASYNC_ACTION_ID_KEY]: expect.any(String) } },
+      { type: TYPE.PENDING, meta: { trigger: triggers[1], [ASYNC_ACTION_ID_KEY]: expect.any(String) } },
+      { type: TYPE.PENDING, meta: { trigger: triggers[2], [ASYNC_ACTION_ID_KEY]: expect.any(String) } },
+      { type: TYPE.SUCCESS, payload: data, meta: { trigger: triggers[2], [ASYNC_ACTION_ID_KEY]: expect.any(String) } },
+      {
+        type: TYPE.FAILURE,
+        payload: error,
+        meta: { trigger: triggers[1], [ASYNC_ACTION_ID_KEY]: expect.any(String) },
+        error: true
+      }
     ]
     expect(dispatched).toEqual(expectedActions)
 
