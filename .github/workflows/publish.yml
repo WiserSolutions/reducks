@@ -18,8 +18,8 @@ jobs:
       - uses: actions/checkout@master
       - run: npm i --frozen-lockfile
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.WISER_PACKAGES }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm run build
       - run: npm publish
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.WISER_PACKAGES }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
