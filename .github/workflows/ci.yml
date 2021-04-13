@@ -2,7 +2,7 @@ name: Main Workflow
 
 on:
   push:
-
+  
 jobs:
 
   lint:
@@ -16,9 +16,9 @@ jobs:
           node-version: '14'
           registry-url: https://npm.pkg.github.com/
           scope: '@wisersolutions'
-      - run: npm i
+      - run: npm ci
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.WISER_PACKAGES }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm run lint
 
   tests:
@@ -32,7 +32,7 @@ jobs:
           node-version: '14'
           registry-url: https://npm.pkg.github.com/
           scope: '@wisersolutions'
-      - run: npm i
+      - run: npm ci
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.WISER_PACKAGES }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm run test
