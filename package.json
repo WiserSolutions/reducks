@@ -6,6 +6,9 @@
     "type": "git",
     "url": "git+https://github.com/WiserSolutions/reducks"
   },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
   "author": "Wiser Solutions, Inc.",
   "license": "MIT",
   "main": "./lib/index.js",
@@ -24,9 +27,9 @@
   },
   "devDependencies": {
     "@redux-saga/deferred": "^1.1.2",
-    "@wisersolutions/eslint-config": "^2.0.1",
-    "@wisersolutions/eslint-formatter-idea": "^1.0.5",
-    "@wisersolutions/transpile-js": "^0.0.17",
+    "@wisersolutions/eslint-config": "^2.0.6",
+    "@wisersolutions/eslint-formatter-idea": "^1.0.8",
+    "@wisersolutions/transpile-js": "^0.0.19",
     "babel-eslint": "^10.0.3",
     "babel-jest": "^24.9.0",
     "eslint": "^6.7.1",
