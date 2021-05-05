@@ -17,7 +17,7 @@ describe('takeLatestBy', () => {
       finished.push({ id, data, args: [arg1, arg2], result })
     }
     await runSagaWithActions(
-      function*() {
+      function* () {
         yield takeLatestBy([TYPE], ({ payload: { id } }) => id, worker, ...args)
       },
       undefined,

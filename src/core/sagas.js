@@ -7,12 +7,7 @@ function* takeOneHelper(patternOrChannel, worker, ...args) {
 export const takeOne = (...args) => fork(takeOneHelper, ...args)
 
 export function composeSagas(...sagas) {
-  return function*() {
-    yield all(
-      sagas
-        .slice()
-        .reverse()
-        .map(fork)
-    )
+  return function* () {
+    yield all(sagas.slice().reverse().map(fork))
   }
 }

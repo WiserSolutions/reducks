@@ -1,7 +1,7 @@
 import { fork, take, cancel } from 'redux-saga/effects'
 
 export const takeLatestBy = (patternOrChannel, getKey, worker, ...args) =>
-  fork(function*() {
+  fork(function* () {
     const lastTasksPerKey = {}
     while (true) {
       const action = yield take(patternOrChannel)

@@ -9,7 +9,7 @@ export const asyncActionSaga = (
   effect,
   { getArgs = (action, state) => [action?.payload, state, action], getMeta = action => ({ trigger: action }) } = {}
 ) =>
-  function*(action) {
+  function* (action) {
     const state = yield select()
     const meta = setIn(ASYNC_ACTION_ID_KEY, uniqueId('asyncActionId-'))(getMeta(action, state) ?? {})
     yield put({ type: PENDING, meta })

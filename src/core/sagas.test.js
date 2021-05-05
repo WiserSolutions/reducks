@@ -11,7 +11,7 @@ describe('sagas', () => {
       const fn = mockGenerator()
 
       await runSagaWithActions(
-        function*() {
+        function* () {
           yield takeOne(action.type, fn)
         },
         () => {},

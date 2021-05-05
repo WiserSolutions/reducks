@@ -1,7 +1,7 @@
 import { takeEvery, select, call } from 'redux-saga/effects'
 
 export const sideEffectsMapSaga = typeToSideEffectMap =>
-  function*() {
+  function* () {
     yield takeEvery(Object.keys(typeToSideEffectMap), function* performSideEffect(action) {
       const { type, payload } = action
       const sideEffect = typeToSideEffectMap[type]
