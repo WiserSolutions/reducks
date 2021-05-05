@@ -841,11 +841,11 @@ export function splitAsyncActionDuckWithTrigger<
  * reset the state to its default value (retrieved by performing mock init with the reducer) on
  * the selected messages.
  * @param path
- * @param resetType
+ * @param resetTypes a message type to reset state on or a list of such
  *
  * @note Using `resetState` is not recommended as it is a needlessly convoluted construct. Standard
  * reducer composition should suffice.
  */
-export function resetState<D extends Duck>(path: ObjectPath, resetType: MessageType): (duck: D) => D
+export function resetState<D extends Duck>(path: ObjectPath, resetTypes: MessageType | Array<MessageType>): (duck: D) => D
 
 // endregion
