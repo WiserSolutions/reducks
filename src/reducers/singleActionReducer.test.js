@@ -1,6 +1,8 @@
 import { singleActionReducer } from './singleActionReducer'
 
-const reduce = key => (state, { payload }) => ({ [key]: `${state[key]}+${payload}` })
+const reduce =
+  key =>
+  (state, { payload }) => ({ [key]: `${state[key]}+${payload}` })
 const type = 'TEST_ACTION'
 const action = payload => ({ type, payload })
 
@@ -13,6 +15,14 @@ describe('singleActionReducer', () => {
   it('combines state with actions of the given type if provided a reducer', () => {
     const reducer = singleActionReducer(type, reduce('prop'))
     expect(reducer({ prop: 'original' }, action('data'))).toEqual({ prop: 'original+data' })
+  })
+
+  it('passes other arguments to inner reducer', () => {
+    const reducer = singleActionReducer(
+      type,
+      (state, { payload }, globalState) => `${state}+${payload}+${globalState.other}`
+    )
+    expect(reducer('original', action('new'), { local: 'original', other: 'extra' })).toEqual('original+new+extra')
   })
 
   it('sets initial value when supplied', () => {
